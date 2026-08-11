@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { signIn, signOut } from "aws-amplify/auth";
+import { getCategories } from "../api/client";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -23,6 +24,10 @@ export default function LoginPage() {
 
       // @TODO: remove debug print
       console.log("sign-in-result", result);
+
+      // @TODO: remove test code
+      const categories = await getCategories();
+      console.log(categories);
     } catch (err) {
       console.log(err);
       setError("Invalid username or password");
