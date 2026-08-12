@@ -6,6 +6,7 @@ import "./index.css";
 import "./auth/amplify";
 import App from "./App.tsx";
 import Login from "./pages/login.tsx";
+import Register from "./pages/register.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -13,6 +14,7 @@ createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="register" element={<Register />} />
         <Route path="/" element={<App />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
