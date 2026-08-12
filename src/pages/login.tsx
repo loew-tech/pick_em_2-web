@@ -1,10 +1,23 @@
-"use client";
-
 import { useState } from "react";
 import { signIn, signOut } from "aws-amplify/auth";
+import { useNavigate } from "react-router-dom";
+import {
+  Alert,
+  Box,
+  Button,
+  Container,
+  Link,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+
 import { getCategories } from "../api/client";
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -13,19 +26,16 @@ export default function LoginPage() {
     event.preventDefault();
     setError("");
 
-    // TODO: remove debug print
-    console.log({ username, password });
-
     try {
       const result = await signIn({
         username,
         password,
       });
 
-      // @TODO: remove debug print
+      // TODO: remove debug print
       console.log("sign-in-result", result);
 
-      // @TODO: remove test code
+      // TODO: remove test code
       const categories = await getCategories();
       console.log(categories);
     } catch (err) {
@@ -39,41 +49,73 @@ export default function LoginPage() {
   };
 
   return (
-    <main>
-      <h1>Pick&apos;em</h1>
+    <Box component="main">
+      <Container maxWidth="sm">
+        <Paper elevation={3} sx={{ mt: 8, p: 4 }}>
+          <Stack spacing={3}>
+            <Box>
+              <Typography variant="h4" component="h1" gutterBottom>
+                Pick&apos;em
+              </Typography>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="username">Username</label>
-          <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            required
-          />
-        </div>
+              <Typography color="text.secondary">
+                Log in to your account.
+              </Typography>
+            </Box>
 
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
-        </div>
+            {error && <Alert severity="error">{error}</Alert>}
 
-        {error && <p>{error}</p>}
+            <Box component="form" onSubmit={handleSubmit}>
+              <Stack spacing={3}>
+                <TextField
+                  label="Username"
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value)}
+                  required
+                  fullWidth
+                  autoComplete="username"
+                  autoFocus
+                />
 
-        <button type="submit">Log in</button>
+                <TextField
+                  label="Password"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                  fullWidth
+                  autoComplete="current-password"
+                />
 
-        {/* @TODO: move this out once testing and auth work is done  */}
-        <button type="button" onClick={handleSignOut}>
-          Sign out
-        </button>
-      </form>
-    </main>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  fullWidth
+                >
+                  Log In
+                </Button>
+              </Stack>
+            </Box>
+
+            <Typography variant="body2" sx={{ textAlign: "center" }}>
+              Don&apos;t have an account?{" "}
+              <Link
+                component="button"
+                type="button"
+                onClick={() => navigate("/register")}
+              >
+                Register
+              </Link>
+            </Typography>
+
+            {/* TODO: remove once testing and auth work is done */}
+            <Button type="button" variant="outlined" onClick={handleSignOut}>
+              Sign Out
+            </Button>
+          </Stack>
+        </Paper>
+      </Container>
+    </Box>
   );
 }
