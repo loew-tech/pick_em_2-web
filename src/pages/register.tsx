@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Alert, Box, Container, Paper } from "@mui/material";
-import RegistrationConfirmationForm from "../components/RegistrationConfirmationForm";
-import RegistrationForm from "../components/RegistrationForm";
+import RegistrationConfirmationForm from "../components/auth/RegistrationConfirmationForm";
+import RegistrationForm from "../components/auth/RegistrationForm";
 
 const Register = () => {
   const [username, setUsername] = useState("");

@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { confirmSignUp } from "aws-amplify/auth";
 import { Box, Button, Link, Stack, TextField, Typography } from "@mui/material";
 
-type RegistrationConfirmationFormProps = {
+interface RegistrationConfirmationFormProps {
   username: string;
   email: string;
   setError: (error: string) => void;
   setNeedsConfirmation: (needsConfirmation: boolean) => void;
-};
+}
 const RegistrationConfirmationForm = ({
   username,
   email,

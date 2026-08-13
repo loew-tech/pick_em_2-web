@@ -7,15 +7,19 @@ import "./auth/amplify";
 import App from "./App.tsx";
 import Login from "./pages/login.tsx";
 import Register from "./pages/register.tsx";
+import Home from "./pages/home.tsx";
+import ActivityPage from "./pages/activity.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     {/* @TODO: move to /Routes */}
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="register" element={<Register />} />
         <Route path="/" element={<App />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="register" element={<Register />} />{" "}
+        <Route path="/home" element={<Home />} />
+        <Route path="activity" element={<ActivityPage activity={null} />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

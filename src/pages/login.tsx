@@ -38,6 +38,7 @@ export default function LoginPage() {
       // TODO: remove test code
       const categories = await getCategories();
       console.log(categories);
+      navigate("/home");
     } catch (err) {
       console.log(err);
       setError("Invalid username or password");

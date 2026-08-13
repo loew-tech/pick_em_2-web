@@ -3,14 +3,14 @@ import { useState } from "react";
 import { signUp } from "aws-amplify/auth";
 import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 
-type RegistrationFormProps = {
+interface RegistrationFormProps {
   username: string;
   setUsername: (username: string) => void;
   email: string;
   setEmail: (email: string) => void;
   setNeedsConfirmation: (needsConfirmation: boolean) => void;
   setError: (error: string) => void;
-};
+}
 const RegistrationForm = ({
   username,
   setUsername,
