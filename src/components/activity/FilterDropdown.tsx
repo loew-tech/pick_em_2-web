@@ -6,10 +6,11 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 
 import { type SelectChangeEvent } from "@mui/material/Select";
+import type { Tier } from "../../models/Activity";
 
 type FilterDropdownProps = {
   title: string;
-  initVal?: string | null;
+  initVal?: Tier;
   handleChange: (event: SelectChangeEvent, child: ReactNode) => void;
 };
 
@@ -18,14 +19,14 @@ export const FilterDropdown = ({
   initVal,
   handleChange,
 }: FilterDropdownProps) => {
-  const [val, setVal] = useState<string>(initVal ?? "low");
+  const [val, setVal] = useState<Tier>(initVal ?? "low");
 
   const toTitleCase = (s: string) => {
     return s.charAt(0).toUpperCase() + s.slice(1);
   };
 
   const onChange = (event: SelectChangeEvent, child: ReactNode) => {
-    setVal(event.target.value as string);
+    setVal(event.target.value as Tier);
     handleChange(event, child);
   };
 

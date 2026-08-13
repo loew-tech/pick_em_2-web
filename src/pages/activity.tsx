@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 
-import type { Activity } from "../models/Activity";
+import type { Activity, Tier } from "../models/Activity";
 import CategorySearchInput from "../components/categories/CategorySearchInput";
 import { FilterDropdown } from "../components/activity/FilterDropdown";
 import { useNavigate } from "react-router-dom";
@@ -26,16 +26,18 @@ const ACTIONS = {
 } as const;
 type Action = (typeof ACTIONS)[keyof typeof ACTIONS];
 
-interface ActivityProps {
+interface ActivityPageProps {
   activity: Activity | null;
 }
-const ActivityPage = ({ activity }: ActivityProps) => {
+const ActivityPage = ({ activity }: ActivityPageProps) => {
   const navigate = useNavigate();
 
   const [category, setCategory] = useState(activity ? activity.category : "");
   const [name, setName] = useState(activity ? activity.name : "");
-  const [interest, setInterest] = useState(activity ? activity.interest : "");
-  const [effort, setEffort] = useState(activity ? activity.effort : "");
+  const [interest, setInterest] = useState(
+    activity ? activity.interest : "low",
+  );
+  const [effort, setEffort] = useState(activity ? activity.effort : "low");
   const [error, setError] = useState("");
 
   const handleNameChange = (
@@ -51,7 +53,7 @@ const ActivityPage = ({ activity }: ActivityProps) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _: ReactNode,
   ) => {
-    setInterest(event.target.value);
+    setInterest(event.target.value as Tier);
   };
 
   const handleEffortChange = (
@@ -61,14 +63,16 @@ const ActivityPage = ({ activity }: ActivityProps) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _: ReactNode,
   ) => {
-    setEffort(event.target.value);
+    setEffort(event.target.value as Tier);
   };
 
   const takeEditAction = async (action: Action) => {
     if (action === ACTIONS.CANCEL) {
       navigate("/home");
+      return;
     }
     if (!category || !name || !interest || !effort) {
+      setError("category, name, interest, and effort must all be provided.");
       return;
     }
 
@@ -103,7 +107,10 @@ const ActivityPage = ({ activity }: ActivityProps) => {
     }
   };
 
-  const handleConfirm = () => {};
+  const handleConfirm = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void takeEditAction(ACTIONS.ADD);
+  };
 
   return (
     <Box component="main">
@@ -115,7 +122,15 @@ const ActivityPage = ({ activity }: ActivityProps) => {
           <Link href="/home">Back to Home</Link>
           {error && <Alert severity="error">{error}</Alert>}
           <Stack spacing={3}>
-            <Box component="form" onSubmit={handleConfirm}>
+            <Box
+              component="form"
+              onSubmit={handleConfirm}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 3,
+              }}
+            >
               {activity ? (
                 <Typography variant="h6" component="h3">
                   {activity.category}
@@ -152,8 +167,8 @@ const ActivityPage = ({ activity }: ActivityProps) => {
                 </>
               ) : (
                 <Button
+                  type="submit"
                   disabled={!category || !name || !interest || !effort}
-                  onClick={() => takeEditAction(ACTIONS.ADD)}
                 >
                   ADD
                 </Button>

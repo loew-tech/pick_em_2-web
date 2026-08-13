@@ -18,6 +18,7 @@ const CategorySearchInput = ({
   setCategory,
   setError,
 }: CategorySearchInputProps) => {
+  // @TODO: consider separating categories and categoriesFromServer
   const [categories, setCategories] = useState<string[]>([]);
 
   const handleCategoryChange = (
