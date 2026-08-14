@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type ReactNode } from "react";
+import { useState, type ChangeEvent } from "react";
 
 import {
   Alert,
@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 
-import type { Activity, Tier } from "../models/Activity";
+import { Tier, type Activity } from "../models/Activity";
 import CategorySearchInput from "../components/categories/CategorySearchInput";
 import { FilterDropdown } from "../components/activity/FilterDropdown";
 import { useNavigate } from "react-router-dom";
@@ -34,10 +34,12 @@ const ActivityPage = ({ activity }: ActivityPageProps) => {
 
   const [category, setCategory] = useState(activity ? activity.category : "");
   const [name, setName] = useState(activity ? activity.name : "");
-  const [interest, setInterest] = useState(
-    activity ? activity.interest : "low",
+  const [interest, setInterest] = useState<Tier>(
+    activity ? activity.interest : Tier.LOW,
   );
-  const [effort, setEffort] = useState(activity ? activity.effort : "low");
+  const [effort, setEffort] = useState<Tier>(
+    activity ? activity.interest : Tier.LOW,
+  );
   const [error, setError] = useState("");
 
   const handleNameChange = (
@@ -46,24 +48,12 @@ const ActivityPage = ({ activity }: ActivityPageProps) => {
     setName(event.target.value);
   };
 
-  const handleInterestChange = (
-    event:
-      | ChangeEvent<Omit<HTMLInputElement, "value"> & { value: string }>
-      | (Event & { target: { value: string; name: string } }),
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _: ReactNode,
-  ) => {
-    setInterest(event.target.value as Tier);
+  const handleInterestChange = (tier: Tier) => {
+    setInterest(tier);
   };
 
-  const handleEffortChange = (
-    event:
-      | ChangeEvent<Omit<HTMLInputElement, "value"> & { value: string }>
-      | (Event & { target: { value: string; name: string } }),
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _: ReactNode,
-  ) => {
-    setEffort(event.target.value as Tier);
+  const handleEffortChange = (tier: Tier) => {
+    setEffort(tier);
   };
 
   const takeEditAction = async (action: Action) => {

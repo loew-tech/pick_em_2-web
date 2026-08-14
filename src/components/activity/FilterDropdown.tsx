@@ -6,12 +6,12 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 
 import { type SelectChangeEvent } from "@mui/material/Select";
-import type { Tier } from "../../models/Activity";
+import { Tier } from "../../models/Activity";
 
 type FilterDropdownProps = {
   title: string;
   initVal?: Tier;
-  handleChange: (event: SelectChangeEvent, child: ReactNode) => void;
+  handleChange: (tier: Tier) => void;
 };
 
 export const FilterDropdown = ({
@@ -19,15 +19,17 @@ export const FilterDropdown = ({
   initVal,
   handleChange,
 }: FilterDropdownProps) => {
-  const [val, setVal] = useState<Tier>(initVal ?? "low");
+  const [val, setVal] = useState<Tier>(initVal ?? 1);
 
   const toTitleCase = (s: string) => {
     return s.charAt(0).toUpperCase() + s.slice(1);
   };
 
-  const onChange = (event: SelectChangeEvent, child: ReactNode) => {
-    setVal(event.target.value as Tier);
-    handleChange(event, child);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const onChange = (event: SelectChangeEvent<Tier>, _: ReactNode) => {
+    const tier = Number(event.target.value) as Tier;
+    setVal(tier);
+    handleChange(tier);
   };
 
   return (
@@ -40,9 +42,9 @@ export const FilterDropdown = ({
         label={title}
         onChange={onChange}
       >
-        <MenuItem value={"low"}>low</MenuItem>
-        <MenuItem value={"medium"}>medium</MenuItem>
-        <MenuItem value={"high"}>high</MenuItem>
+        <MenuItem value={Tier.LOW}>low</MenuItem>
+        <MenuItem value={Tier.MEDIUM}>medium</MenuItem>
+        <MenuItem value={Tier.HIGH}>high</MenuItem>
       </Select>
     </FormControl>
   );
