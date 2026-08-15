@@ -1,6 +1,7 @@
 import { fetchAuthSession } from "aws-amplify/auth";
 
 import type { Activity } from "../models/Activity";
+import type { Pick } from "../models/Pick";
 import { CATEGORY } from "../common/constants";
 import {
   AuthenticationError,
@@ -91,6 +92,12 @@ export async function addActivity(activity: Activity): Promise<boolean> {
   }
 
   return true;
+}
+
+// @TODO: implement
+export async function getPick(categoriesIds: string[]): Promise<Pick> {
+  console.log("PICK!", categoriesIds);
+  return { name: "dummy-test-activity-name", category: "" };
 }
 
 async function getAuthHeader(): Promise<string> {

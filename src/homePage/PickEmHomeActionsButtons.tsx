@@ -4,13 +4,15 @@ import { Box, Button } from "@mui/material";
 
 import type { Tier } from "../models/Activity";
 import type { Category } from "../models/Category";
-import { getCategories as getCategories } from "../api/client";
+import { getCategories as getCategories, getPick } from "../api/client";
+import type { Pick } from "../models/Pick";
 
 interface PickEmHomeActionButtonsProps {
   selectedCategoriesIds: string[];
   setSelectedCategories: (cats: Category[]) => void;
   interest: Tier;
   effort: Tier;
+  setPick: (p: Pick) => void;
   setError: (s: string) => void;
 }
 const PickEmHomeActionButtons = ({
@@ -18,9 +20,20 @@ const PickEmHomeActionButtons = ({
   setSelectedCategories,
   interest,
   effort,
+  setPick,
   setError,
 }: PickEmHomeActionButtonsProps) => {
   const navigate = useNavigate();
+
+  const fetchPick = async () => {
+    try {
+      const pick = await getPick(selectedCategoriesIds);
+      setPick(pick);
+    } catch (err) {
+      console.log(err);
+      setError("Failed to make pick.");
+    }
+  };
 
   const fetchSelectedCategories = async () => {
     try {
@@ -35,7 +48,7 @@ const PickEmHomeActionButtons = ({
   return (
     <Box className="cat-btns">
       <Button
-        onClick={() => console.log("PICK!")}
+        onClick={fetchPick}
         disabled={!selectedCategoriesIds.length || !interest || !effort}
       >
         Pick!
