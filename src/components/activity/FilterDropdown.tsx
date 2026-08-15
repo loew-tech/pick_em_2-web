@@ -8,6 +8,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { type SelectChangeEvent } from "@mui/material/Select";
 import { Tier } from "../../models/Activity";
 
+// @TODO: fix resizing issue on select
 type FilterDropdownProps = {
   title: string;
   initVal?: Tier;

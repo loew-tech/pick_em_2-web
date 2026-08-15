@@ -1,17 +1,26 @@
 import { useState } from "react";
-import { Box, Button, Container, Paper } from "@mui/material";
+import { Container, Paper } from "@mui/material";
 
 import CategorySelectForm from "../components/categories/CategoriesSelectForm";
-import { useNavigate } from "react-router-dom";
 import { FilterDropdown } from "../components/activity/FilterDropdown";
+import PickEmHomeActionButtons from "./PickEmHomeActionsButtons";
+import { Tier } from "../models/Activity";
 
 interface PickEmHomeContainerProps {
   setError: (s: string) => void;
 }
 const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
-  const navigate = useNavigate();
-
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [interest, setInterest] = useState<Tier>(Tier.LOW);
+  const [effort, setEffort] = useState<Tier>(Tier.LOW);
+
+  const handleInterestChange = (tier: Tier) => {
+    setInterest(tier);
+  };
+
+  const handleEffortChange = (tier: Tier) => {
+    setEffort(tier);
+  };
 
   const addToSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
     let new_ = [...selectedCategories];
@@ -27,13 +36,13 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
     <Container maxWidth="md">
       <Paper elevation={3} sx={{ mt: 8, p: 4 }}>
         <CategorySelectForm onSelect={addToSelection} setError={setError} />
-        <FilterDropdown title="interest" handleChange={() => {}} />
-        <FilterDropdown title="effort" handleChange={() => {}} />
-        <Box className="cat-btns">
-          <Button onClick={() => console.log("PICK!")}>Pick!</Button>
-          <Button onClick={() => console.log("EXPLORE!")}>Explore!</Button>
-          <Button onClick={() => navigate("/activity")}>Add New!</Button>
-        </Box>
+        <FilterDropdown title="interest" handleChange={handleInterestChange} />
+        <FilterDropdown title="effort" handleChange={handleEffortChange} />
+        <PickEmHomeActionButtons
+          selectedCategories={selectedCategories}
+          interest={interest}
+          effort={effort}
+        />
       </Paper>
     </Container>
   );
