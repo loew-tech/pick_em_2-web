@@ -8,7 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 
-import { getCategories } from "../../api/client";
+import { getCategoriesIds } from "../../api/client";
 
 interface CategorySearchInputProps {
   setCategory: (s: string) => void;
@@ -40,7 +40,7 @@ const CategorySearchInput = ({
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const cats = await getCategories();
+        const cats = await getCategoriesIds();
         setCategories(cats.categories);
       } catch (err) {
         console.log(err);

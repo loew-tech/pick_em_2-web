@@ -134,7 +134,7 @@ const ActivityPage = ({ activity }: ActivityPageProps) => {
               )}
               <TextField
                 id="outlined-basic"
-                placeholder={activity?.name ?? "enter name"}
+                placeholder={activity?.name ?? "Enter Activity Name"}
                 onChange={handleNameChange}
               ></TextField>
               <FilterDropdown

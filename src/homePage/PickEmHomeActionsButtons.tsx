@@ -30,7 +30,7 @@ const PickEmHomeActionButtons = ({
       setSelectedCategories(categories);
     } catch (err) {
       console.log(err);
-      setError("Failed to fetch categories from server");
+      setError("Failed to fetch selected categories from server");
     }
   };
 
