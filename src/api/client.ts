@@ -1,6 +1,6 @@
 import { fetchAuthSession } from "aws-amplify/auth";
 
-import type { Activity } from "../models/Activity";
+import type { Activity, Tier } from "../models/Activity";
 import type { Pick } from "../models/Pick";
 import { CATEGORY } from "../common/constants";
 import {
@@ -94,10 +94,31 @@ export async function addActivity(activity: Activity): Promise<boolean> {
   return true;
 }
 
-// @TODO: implement
-export async function getPick(categoriesIds: string[]): Promise<Pick> {
-  console.log("PICK!", categoriesIds);
-  return { name: "dummy-test-activity-name", category: "" };
+export async function getPick(
+  categoryIds: string[],
+  interest: Tier,
+  effort: Tier,
+): Promise<Pick> {
+  const authHeader = await getAuthHeader();
+
+  const response = await fetch(`${API_URL}/pick`, {
+    method: "POST",
+    headers: {
+      Authorization: authHeader,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      categories: categoryIds,
+      interest,
+      effort,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new API_Error(response.status);
+  }
+
+  return response.json();
 }
 
 async function getAuthHeader(): Promise<string> {

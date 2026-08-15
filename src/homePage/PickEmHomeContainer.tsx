@@ -9,6 +9,7 @@ import type { Category } from "../models/Category";
 import type { Pick } from "../models/Pick";
 import CategoriesActivitesContainer from "../components/categories/CategoriesActivitesContainer";
 import PickCard from "../components/pick/PickCard";
+import { getPick } from "../api/client";
 
 interface PickEmHomeContainerProps {
   setError: (s: string) => void;
@@ -28,6 +29,17 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
 
   const handleEffortChange = (tier: Tier) => {
     setEffort(tier);
+  };
+
+  const makePick = async () => {
+    setError("");
+    try {
+      const pick = await getPick(selectedCategoriesIds, interest, effort);
+      setPick(pick);
+    } catch (err) {
+      console.log(err);
+      setError("Failed to make pick.");
+    }
   };
 
   const addToSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,7 +63,7 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
           setSelectedCategories={setSelectedCategories}
           interest={interest}
           effort={effort}
-          setPick={setPick}
+          makePick={makePick}
           setError={setError}
         />
       </Paper>

@@ -9,7 +9,9 @@ const PickCard = ({ pick }: PickCardProps) => {
   return (
     <Paper elevation={4} sx={{ p: 2, backgroundColor: "gold" }}>
       <Typography variant="h6">{pick.category}</Typography>
-      <Typography variant="h6">{pick.name}</Typography>
+      <Typography variant="h6" sx={{ color: "blue" }}>
+        {pick.name}
+      </Typography>
     </Paper>
   );
 };
