@@ -56,6 +56,7 @@ const ActivityPage = ({ activity }: ActivityPageProps) => {
     setEffort(tier);
   };
 
+  // @TODO: reset page on successful add and add feedback
   const takeEditAction = async (action: Action) => {
     if (action === ACTIONS.CANCEL) {
       navigate("/home");

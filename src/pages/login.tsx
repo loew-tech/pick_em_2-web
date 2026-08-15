@@ -13,8 +13,6 @@ import {
   Typography,
 } from "@mui/material";
 
-import { getCategories } from "../api/client";
-
 export default function LoginPage() {
   const navigate = useNavigate();
 
@@ -34,10 +32,6 @@ export default function LoginPage() {
 
       // TODO: remove debug print
       console.log("sign-in-result", result);
-
-      // TODO: remove test code
-      const categories = await getCategories();
-      console.log(categories);
       navigate("/home");
     } catch (err) {
       console.log(err);

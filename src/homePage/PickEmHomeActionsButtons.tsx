@@ -3,32 +3,46 @@ import { useNavigate } from "react-router-dom";
 import { Box, Button } from "@mui/material";
 
 import type { Tier } from "../models/Activity";
+import type { Category } from "../models/Category";
+import { getCategories as getCategories } from "../api/client";
 
 interface PickEmHomeActionButtonsProps {
-  selectedCategories: string[];
+  selectedCategoriesIds: string[];
+  setSelectedCategories: (cats: Category[]) => void;
   interest: Tier;
   effort: Tier;
+  setError: (s: string) => void;
 }
 const PickEmHomeActionButtons = ({
-  selectedCategories,
+  selectedCategoriesIds,
+  setSelectedCategories,
   interest,
   effort,
+  setError,
 }: PickEmHomeActionButtonsProps) => {
   const navigate = useNavigate();
 
-  console.log("selectedCategories:", selectedCategories);
+  const fetchSelectedCategories = async () => {
+    try {
+      const categories = await getCategories(selectedCategoriesIds);
+      setSelectedCategories(categories);
+    } catch (err) {
+      console.log(err);
+      setError("Failed to fetch categories from server");
+    }
+  };
 
   return (
     <Box className="cat-btns">
       <Button
         onClick={() => console.log("PICK!")}
-        disabled={!selectedCategories.length || !interest || !effort}
+        disabled={!selectedCategoriesIds.length || !interest || !effort}
       >
         Pick!
       </Button>
       <Button
-        onClick={() => console.log("EXPLORE!")}
-        disabled={!selectedCategories.length}
+        onClick={fetchSelectedCategories}
+        disabled={!selectedCategoriesIds.length}
       >
         Explore!
       </Button>
