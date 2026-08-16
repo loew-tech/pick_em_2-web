@@ -57,8 +57,16 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
     <Container maxWidth="md">
       <Paper elevation={3} sx={{ mt: 8, p: 4 }}>
         <CategorySelectForm onSelect={addToSelection} setError={setError} />
-        <FilterDropdown title={INTEREST} handleChange={handleInterestChange} />
-        <FilterDropdown title={EFFORT} handleChange={handleEffortChange} />
+        <FilterDropdown
+          title={INTEREST}
+          handleChange={handleInterestChange}
+          value={interest}
+        />
+        <FilterDropdown
+          title={EFFORT}
+          handleChange={handleEffortChange}
+          value={effort}
+        />
         <PickEmHomeActionButtons
           selectedCategoriesIds={selectedCategoriesIds}
           setSelectedCategories={setSelectedCategories}
