@@ -146,7 +146,7 @@ const ActivityPage = () => {
       <Container maxWidth="sm">
         <Paper elevation={3} sx={{ mt: 8, p: 4 }}>
           <Typography variant="h4" component="h1" gutterBottom>
-            Add or Edit Activity
+            {isNew ? "Add Activity" : "Edit Activity"}
           </Typography>
           <Link href="/home">Back to Home</Link>
           {error && <Alert severity="error">{error}</Alert>}
@@ -160,7 +160,7 @@ const ActivityPage = () => {
                 gap: 3,
               }}
             >
-              {isNew ? (
+              {!isNew ? (
                 <Typography variant="h6" component="h3">
                   {activity.category}
                 </Typography>
@@ -173,17 +173,18 @@ const ActivityPage = () => {
               <TextField
                 id="outlined-basic"
                 placeholder={activity?.name ?? "Enter Activity Name"}
+                value={!isNew ? activity.name : null}
                 onChange={handleNameChange}
               ></TextField>
               <FilterDropdown
                 title={INTEREST}
                 handleChange={handleInterestChange}
-                initVal={activity?.interest}
+                value={activity?.interest}
               />
               <FilterDropdown
                 title={EFFORT}
                 handleChange={handleEffortChange}
-                initVal={activity?.effort}
+                value={activity?.effort}
               />
               {activityId && categoryId ? (
                 <>
