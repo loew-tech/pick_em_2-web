@@ -13,7 +13,7 @@ import type { Category } from "../models/Category";
 const API_URL = import.meta.env.VITE_API_URL;
 const INVALID_CATEGORY_CHARS = /[\\/?#%]/;
 
-export async function getCategoriesIds() {
+export async function getCategoriesIds(): Promise<string[]> {
   const authHeader = await getAuthHeader();
 
   const response = await fetch(`${API_URL}/categories`, {
@@ -54,7 +54,7 @@ export async function getCategory(
     throw new API_Error(response.status);
   }
 
-  return response.json();
+  return (await response.json()) as Category;
 }
 
 export async function getActivity(
@@ -76,7 +76,7 @@ export async function getActivity(
     throw new API_Error(response.status);
   }
 
-  return response.json();
+  return (await response.json()) as Activity;
 }
 
 // @TODO: implement
@@ -140,7 +140,7 @@ export async function getPick(
     throw new API_Error(response.status);
   }
 
-  return response.json();
+  return (await response.json()) as Pick;
 }
 
 async function getAuthHeader(): Promise<string> {
