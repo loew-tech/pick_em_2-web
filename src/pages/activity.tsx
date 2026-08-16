@@ -172,10 +172,10 @@ const ActivityPage = () => {
               )}
               <TextField
                 id="outlined-basic"
-                placeholder={activity?.name ?? "Enter Activity Name"}
-                value={!isNew ? activity.name : null}
+                placeholder={"Enter Activity Name"}
+                value={activity.name}
                 onChange={handleNameChange}
-              ></TextField>
+              />
               <FilterDropdown
                 title={INTEREST}
                 handleChange={handleInterestChange}

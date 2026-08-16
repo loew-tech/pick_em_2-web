@@ -98,7 +98,7 @@ export async function addActivity(activity: Activity): Promise<boolean> {
 
   const authHeader = await getAuthHeader();
   const response = await fetch(
-    `${API_URL}/activities/${encodeURIComponent(activity.category)}`,
+    `${API_URL}/categories/${encodeURIComponent(activity.category)}/activities`,
     {
       method: "POST",
       headers: {
