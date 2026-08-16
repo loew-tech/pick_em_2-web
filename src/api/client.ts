@@ -57,6 +57,28 @@ export async function getCategory(
   return response.json();
 }
 
+export async function getActivity(
+  category: string,
+  activityId: string,
+): Promise<Activity> {
+  const authHeader = await getAuthHeader();
+
+  const response = await fetch(
+    `${API_URL}/categories/${encodeURIComponent(category)}/activities/${encodeURIComponent(activityId)}`,
+    {
+      headers: {
+        Authorization: authHeader,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new API_Error(response.status);
+  }
+
+  return response.json();
+}
+
 // @TODO: implement
 export async function updateActivity(activity: Activity): Promise<boolean> {
   console.log("update called", activity);
