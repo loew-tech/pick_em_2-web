@@ -19,7 +19,12 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/login" element={<Login />} />
         <Route path="register" element={<Register />} />{" "}
         <Route path="/home" element={<Home />} />
-        <Route path="activity" element={<ActivityPage activity={null} />} />
+        <Route path="/activities/new" element={<ActivityPage />} />
+        <Route
+          path="/categories/:categoryId/activities/:activityId"
+          element={<ActivityPage />}
+        />
+        {/* @TODO: Redirect to home and have home redirect to login if not auth */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

@@ -10,6 +10,7 @@ import type { Pick } from "../models/Pick";
 import CategoriesActivitesContainer from "../components/categories/CategoriesActivitesContainer";
 import PickCard from "../components/pick/PickCard";
 import { getPick } from "../api/client";
+import { EFFORT, INTEREST } from "../common/constants";
 
 interface PickEmHomeContainerProps {
   setError: (s: string) => void;
@@ -56,8 +57,8 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
     <Container maxWidth="md">
       <Paper elevation={3} sx={{ mt: 8, p: 4 }}>
         <CategorySelectForm onSelect={addToSelection} setError={setError} />
-        <FilterDropdown title="interest" handleChange={handleInterestChange} />
-        <FilterDropdown title="effort" handleChange={handleEffortChange} />
+        <FilterDropdown title={INTEREST} handleChange={handleInterestChange} />
+        <FilterDropdown title={EFFORT} handleChange={handleEffortChange} />
         <PickEmHomeActionButtons
           selectedCategoriesIds={selectedCategoriesIds}
           setSelectedCategories={setSelectedCategories}
@@ -69,7 +70,7 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
       </Paper>
       {pick && <PickCard pick={pick} />}
       {selectedCategories.map((category) => (
-        <CategoriesActivitesContainer category={category} />
+        <CategoriesActivitesContainer key={category.id} category={category} />
       ))}
     </Container>
   );

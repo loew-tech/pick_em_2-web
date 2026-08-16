@@ -3,6 +3,7 @@ import type { Category } from "../../models/Category";
 import ActivityCard from "../activity/ActivityCard";
 
 interface CategoriesActivitesContainerProps {
+  key: string;
   category: Category;
 }
 

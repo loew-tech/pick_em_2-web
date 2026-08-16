@@ -1,4 +1,5 @@
-import { useState, type ChangeEvent } from "react";
+import { useState, useEffect, type ChangeEvent } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
   Alert,
@@ -15,8 +16,21 @@ import {
 import { Tier, type Activity } from "../models/Activity";
 import CategorySearchInput from "../components/categories/CategorySearchInput";
 import { FilterDropdown } from "../components/activity/FilterDropdown";
-import { useNavigate } from "react-router-dom";
-import { addActivity, removeActivity, updateActivity } from "../api/client";
+import {
+  addActivity,
+  getActivity,
+  removeActivity,
+  updateActivity,
+} from "../api/client";
+import { CATEGORY, EFFORT, INTEREST, NAME } from "../common/constants";
+
+const NULL_ACTIVITY: Activity = {
+  name: "",
+  category: "",
+  activity_id: "",
+  interest: Tier.LOW,
+  effort: Tier.LOW,
+};
 
 const ACTIONS = {
   UPDATE: 0,
@@ -26,34 +40,60 @@ const ACTIONS = {
 } as const;
 type Action = (typeof ACTIONS)[keyof typeof ACTIONS];
 
-interface ActivityPageProps {
-  activity: Activity | null;
-}
-const ActivityPage = ({ activity }: ActivityPageProps) => {
+const ActivityPage = () => {
   const navigate = useNavigate();
+  const { categoryId, activityId } = useParams();
 
-  const [category, setCategory] = useState(activity ? activity.category : "");
-  const [name, setName] = useState(activity ? activity.name : "");
-  const [interest, setInterest] = useState<Tier>(
-    activity ? activity.interest : Tier.LOW,
-  );
-  const [effort, setEffort] = useState<Tier>(
-    activity ? activity.interest : Tier.LOW,
-  );
+  const [activity, setActivity] = useState<Activity>(NULL_ACTIVITY);
+  const [isNew, setIsNew] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      if (!categoryId || !activityId) {
+        setActivity({ ...NULL_ACTIVITY });
+        setIsNew(true);
+      } else {
+        setIsNew(false);
+        try {
+          const activity_ = await getActivity(categoryId, activityId);
+          setActivity(activity_);
+        } catch (err) {
+          console.log(err);
+          setError("Failed to fetch activity.");
+        }
+      }
+    };
+
+    fetchCategories();
+  }, [activityId, categoryId]);
 
   const handleNameChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    setName(event.target.value);
+    setActivityField(NAME, event.target.value);
+  };
+
+  const handleCategoryChange = (cat: string) => {
+    setActivityField(CATEGORY, cat);
   };
 
   const handleInterestChange = (tier: Tier) => {
-    setInterest(tier);
+    setActivityField(INTEREST, tier);
   };
 
   const handleEffortChange = (tier: Tier) => {
-    setEffort(tier);
+    setActivityField(EFFORT, tier);
+  };
+
+  const setActivityField = <K extends keyof Activity>(
+    field: K,
+    value: Activity[K],
+  ) => {
+    setActivity((current) => ({
+      ...current,
+      [field]: value,
+    }));
   };
 
   // @TODO: reset page on successful add and add feedback
@@ -62,32 +102,30 @@ const ActivityPage = ({ activity }: ActivityPageProps) => {
       navigate("/home");
       return;
     }
-    if (!category || !name || !interest || !effort) {
-      setError("category, name, interest, and effort must all be provided.");
+
+    if (!activity) {
+      setError("categor must be provided.");
       return;
     }
 
-    const activity_: Activity = {
-      activity_id: activity?.activity_id ?? null,
-      name,
-      category,
-      interest,
-      effort,
-    };
+    if (!activity.category || !activity.name) {
+      setError("category, name, interest, and effort must all be provided.");
+      return;
+    }
 
     let ok = false;
     let errAction = "";
     switch (action) {
       case ACTIONS.UPDATE:
-        ok = await updateActivity(activity_);
+        ok = await updateActivity(activity);
         errAction = "update";
         break;
       case ACTIONS.REMOVE:
-        ok = await removeActivity(activity_);
+        ok = await removeActivity(activity);
         errAction = "remove";
         break;
       case ACTIONS.ADD:
-        ok = await addActivity(activity_);
+        ok = await addActivity(activity);
         errAction = "add";
         break;
     }
@@ -122,13 +160,13 @@ const ActivityPage = ({ activity }: ActivityPageProps) => {
                 gap: 3,
               }}
             >
-              {activity ? (
+              {isNew ? (
                 <Typography variant="h6" component="h3">
                   {activity.category}
                 </Typography>
               ) : (
                 <CategorySearchInput
-                  setCategory={setCategory}
+                  setCategory={handleCategoryChange}
                   setError={setError}
                 />
               )}
@@ -138,16 +176,16 @@ const ActivityPage = ({ activity }: ActivityPageProps) => {
                 onChange={handleNameChange}
               ></TextField>
               <FilterDropdown
-                title="interest"
+                title={INTEREST}
                 handleChange={handleInterestChange}
                 initVal={activity?.interest}
               />
               <FilterDropdown
-                title="effort"
+                title={EFFORT}
                 handleChange={handleEffortChange}
                 initVal={activity?.effort}
               />
-              {activity ? (
+              {activityId && categoryId ? (
                 <>
                   <Button onClick={() => takeEditAction(ACTIONS.REMOVE)}>
                     REMOVE
@@ -159,7 +197,7 @@ const ActivityPage = ({ activity }: ActivityPageProps) => {
               ) : (
                 <Button
                   type="submit"
-                  disabled={!category || !name || !interest || !effort}
+                  disabled={!activity?.category || !activity?.name}
                 >
                   ADD
                 </Button>
