@@ -23,6 +23,7 @@ import {
   updateActivity,
 } from "../api/client";
 import { CATEGORY, EFFORT, INTEREST, NAME } from "../common/constants";
+import { API_Error, ClientArgumentError } from "../common/errors";
 
 const NULL_ACTIVITY: Activity = {
   name: "",
@@ -33,10 +34,10 @@ const NULL_ACTIVITY: Activity = {
 };
 
 const ACTIONS = {
-  UPDATE: 0,
-  REMOVE: 1,
-  ADD: 2,
-  CANCEL: 3,
+  UPDATE: "UPDATE",
+  REMOVE: "REMOVE",
+  ADD: "ADD",
+  CANCEL: "CANCEL",
 } as const;
 type Action = (typeof ACTIONS)[keyof typeof ACTIONS];
 
@@ -44,8 +45,9 @@ const ActivityPage = () => {
   const navigate = useNavigate();
   const { categoryId, activityId } = useParams();
 
-  const [activity, setActivity] = useState<Activity>(NULL_ACTIVITY);
+  const [activity, setActivity] = useState<Activity>({ ...NULL_ACTIVITY });
   const [isNew, setIsNew] = useState(false);
+  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -96,6 +98,11 @@ const ActivityPage = () => {
     }));
   };
 
+  const reset = () => {
+    setActivity({ ...NULL_ACTIVITY });
+    setError("");
+  };
+
   // @TODO: reset page on successful add and add feedback
   const takeEditAction = async (action: Action) => {
     if (action === ACTIONS.CANCEL) {
@@ -103,36 +110,40 @@ const ActivityPage = () => {
       return;
     }
 
-    if (!activity) {
-      setError("categor must be provided.");
-      return;
-    }
-
     if (!activity.category || !activity.name) {
-      setError("category, name, interest, and effort must all be provided.");
+      setError("category and name must be provided.");
       return;
     }
 
-    let ok = false;
-    let errAction = "";
-    switch (action) {
-      case ACTIONS.UPDATE:
-        ok = await updateActivity(activity);
-        errAction = "update";
-        break;
-      case ACTIONS.REMOVE:
-        ok = await removeActivity(activity);
-        errAction = "remove";
-        break;
-      case ACTIONS.ADD:
-        ok = await addActivity(activity);
-        errAction = "add";
-        break;
-    }
-
-    if (!ok) {
-      setError(`Failed Action: ${errAction}`);
-      return;
+    try {
+      switch (action) {
+        case ACTIONS.UPDATE:
+          await updateActivity(activity);
+          break;
+        case ACTIONS.REMOVE:
+          await removeActivity(activity);
+          break;
+        case ACTIONS.ADD:
+          if (!activity.category || !activity.name) {
+            setError("category and name must be provided.");
+            return;
+          }
+          await addActivity(activity);
+          reset();
+          break;
+      }
+      setMessage(`${action} activity succeeded!`);
+    } catch (err) {
+      console.log(err);
+      if (err instanceof ClientArgumentError) {
+        setError(
+          `${action} activity failed. Invalid arguments provided. ${err.message}`,
+        );
+      } else if (err instanceof API_Error) {
+        setError(`${action} activity failed with error message ${err.message}`);
+      } else {
+        setError("Unknown error occured.");
+      }
     }
   };
 
@@ -149,7 +160,16 @@ const ActivityPage = () => {
             {isNew ? "Add Activity" : "Edit Activity"}
           </Typography>
           <Link href="/home">Back to Home</Link>
-          {error && <Alert severity="error">{error}</Alert>}
+          {error && (
+            <Alert severity="error" sx={{ marginBottom: "1rem" }}>
+              {error}
+            </Alert>
+          )}
+          {message && (
+            <Alert severity="info" sx={{ marginBottom: "1rem" }}>
+              {message}
+            </Alert>
+          )}
           <Stack spacing={3}>
             <Box
               component="form"
@@ -161,21 +181,28 @@ const ActivityPage = () => {
               }}
             >
               {!isNew ? (
-                <Typography variant="h6" component="h3">
-                  {activity.category}
-                </Typography>
+                <>
+                  <Typography variant="h6" component="h3">
+                    CATEGORY: {activity.category}
+                  </Typography>
+                  <Typography variant="h6" component="h4">
+                    ACTIVITY: {activity.name}
+                  </Typography>
+                </>
               ) : (
-                <CategorySearchInput
-                  setCategory={handleCategoryChange}
-                  setError={setError}
-                />
+                <>
+                  <CategorySearchInput
+                    setCategory={handleCategoryChange}
+                    setError={setError}
+                  />
+                  <TextField
+                    id="outlined-basic"
+                    placeholder={"Enter Activity Name"}
+                    value={activity.name}
+                    onChange={handleNameChange}
+                  />
+                </>
               )}
-              <TextField
-                id="outlined-basic"
-                placeholder={"Enter Activity Name"}
-                value={activity.name}
-                onChange={handleNameChange}
-              />
               <FilterDropdown
                 title={INTEREST}
                 handleChange={handleInterestChange}
@@ -188,11 +215,11 @@ const ActivityPage = () => {
               />
               {activityId && categoryId ? (
                 <>
-                  <Button onClick={() => takeEditAction(ACTIONS.REMOVE)}>
-                    REMOVE
-                  </Button>
                   <Button onClick={() => takeEditAction(ACTIONS.UPDATE)}>
                     UPDATE
+                  </Button>
+                  <Button onClick={() => takeEditAction(ACTIONS.REMOVE)}>
+                    REMOVE
                   </Button>
                 </>
               ) : (

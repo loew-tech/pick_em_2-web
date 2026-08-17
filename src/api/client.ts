@@ -79,12 +79,13 @@ export async function getActivity(
   return (await response.json()) as Activity;
 }
 
-export async function updateActivity(activity: Activity): Promise<boolean> {
+export async function updateActivity(activity: Activity) {
   if (!activity.activity_id) {
     throw new ClientArgumentError(
       "Activity object must have valid activity_id in order to update.",
     );
   }
+
   const authHeader = await getAuthHeader();
 
   const response = await fetch(
@@ -95,24 +96,44 @@ export async function updateActivity(activity: Activity): Promise<boolean> {
         Authorization: authHeader,
         "Content-Type": "application/json",
       },
-      body: activityToJSONRequestObject(activity),
+      body: JSON.stringify({
+        interest: activity.interest,
+        effort: activity.effort,
+      }),
     },
   );
 
   if (!response.ok) {
     throw new API_Error(response.status);
   }
-
-  return true;
 }
 
-// @TODO: implement
-export async function removeActivity(activity: Activity): Promise<boolean> {
-  console.log("remove called", activity);
-  return false;
+export async function removeActivity(activity: Activity): Promise<void> {
+  if (!activity.activity_id) {
+    throw new ClientArgumentError(
+      "Activity object must have a valid activity_id in order to remove.",
+    );
+  }
+
+  const authHeader = await getAuthHeader();
+
+  const response = await fetch(
+    `${API_URL}/categories/${encodeURIComponent(activity.category)}/activities/${encodeURIComponent(activity.activity_id)}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: authHeader,
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new API_Error(response.status);
+  }
 }
 
-export async function addActivity(activity: Activity): Promise<boolean> {
+export async function addActivity(activity: Activity) {
   if (!isValidCategory(activity.category)) {
     throw new ClientArgumentError(CATEGORY);
   }
@@ -133,8 +154,6 @@ export async function addActivity(activity: Activity): Promise<boolean> {
   if (!response.ok) {
     throw new API_Error(response.status);
   }
-
-  return true;
 }
 
 export async function getPick(
