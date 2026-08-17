@@ -79,10 +79,31 @@ export async function getActivity(
   return (await response.json()) as Activity;
 }
 
-// @TODO: implement
 export async function updateActivity(activity: Activity): Promise<boolean> {
-  console.log("update called", activity);
-  return false;
+  if (!activity.activity_id) {
+    throw new ClientArgumentError(
+      "Activity object must have valid activity_id in order to update.",
+    );
+  }
+  const authHeader = await getAuthHeader();
+
+  const response = await fetch(
+    `${API_URL}/categories/${encodeURIComponent(activity.category)}/activities/${encodeURIComponent(activity.activity_id)}`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: authHeader,
+        "Content-Type": "application/json",
+      },
+      body: activityToJSONRequestObject(activity),
+    },
+  );
+
+  if (!response.ok) {
+    throw new API_Error(response.status);
+  }
+
+  return true;
 }
 
 // @TODO: implement
