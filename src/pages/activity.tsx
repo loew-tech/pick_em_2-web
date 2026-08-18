@@ -48,6 +48,7 @@ const ActivityPage = () => {
 
   const [activity, setActivity] = useState<Activity>({ ...NULL_ACTIVITY });
   const [isNew, setIsNew] = useState(false);
+  const [deleteSucceeded, setDeleteSucceeded] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -138,6 +139,7 @@ const ActivityPage = () => {
           break;
         case ACTIONS.REMOVE:
           await removeActivity(activity);
+          setDeleteSucceeded(true);
           break;
         case ACTIONS.ADD:
           if (!activity.category || !activity.name) {
@@ -219,33 +221,37 @@ const ActivityPage = () => {
                   />
                 </>
               )}
-              <FilterDropdown
-                title={INTEREST}
-                handleChange={handleInterestChange}
-                value={activity?.interest}
-              />
-              <FilterDropdown
-                title={EFFORT}
-                handleChange={handleEffortChange}
-                value={activity?.effort}
-              />
-              {activityId && categoryId ? (
+              {!deleteSucceeded ? (
                 <>
-                  <Button onClick={() => takeEditAction(ACTIONS.UPDATE)}>
-                    UPDATE
-                  </Button>
-                  <Button onClick={() => takeEditAction(ACTIONS.REMOVE)}>
-                    REMOVE
-                  </Button>
+                  <FilterDropdown
+                    title={INTEREST}
+                    handleChange={handleInterestChange}
+                    value={activity?.interest}
+                  />
+                  <FilterDropdown
+                    title={EFFORT}
+                    handleChange={handleEffortChange}
+                    value={activity?.effort}
+                  />
+                  {activityId && categoryId ? (
+                    <>
+                      <Button onClick={() => takeEditAction(ACTIONS.UPDATE)}>
+                        UPDATE
+                      </Button>
+                      <Button onClick={() => takeEditAction(ACTIONS.REMOVE)}>
+                        REMOVE
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      type="submit"
+                      disabled={!activity?.category || !activity?.name}
+                    >
+                      ADD
+                    </Button>
+                  )}
                 </>
-              ) : (
-                <Button
-                  type="submit"
-                  disabled={!activity?.category || !activity?.name}
-                >
-                  ADD
-                </Button>
-              )}
+              ) : null}
             </Box>
           </Stack>
         </Paper>
