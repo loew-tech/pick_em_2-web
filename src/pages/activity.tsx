@@ -1,22 +1,12 @@
-import { useState, useEffect, type ChangeEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 
 import { fetchAuthSession } from "aws-amplify/auth";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  Alert,
-  Box,
-  Button,
-  Container,
-  Link,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+
+import { Alert, Box, Container, Link, Paper, Typography } from "@mui/material";
 
 import { Tier, type Activity } from "../models/Activity";
-import CategorySearchInput from "../components/categories/CategorySearchInput";
-import { FilterDropdown } from "../components/activity/FilterDropdown";
+import ActivityForm from "../components/activity/ActivityForm";
 import {
   addActivity,
   getActivity,
@@ -36,10 +26,11 @@ const NULL_ACTIVITY: Activity = {
 
 const ACTIONS = {
   UPDATE: "UPDATE",
-  REMOVE: "REMOVE",
+  DELETE: "DELETE",
   ADD: "ADD",
   CANCEL: "CANCEL",
 } as const;
+
 type Action = (typeof ACTIONS)[keyof typeof ACTIONS];
 
 const ActivityPage = () => {
@@ -61,7 +52,7 @@ const ActivityPage = () => {
           navigate("/login", { replace: true });
         }
       } catch {
-        navigate("/login");
+        navigate("/login", { replace: true });
       }
     }
 
@@ -69,42 +60,26 @@ const ActivityPage = () => {
   }, [navigate]);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    async function fetchActivity() {
       if (!categoryId || !activityId) {
         setActivity({ ...NULL_ACTIVITY });
         setIsNew(true);
-      } else {
-        setIsNew(false);
-        try {
-          const activity_ = await getActivity(categoryId, activityId);
-          setActivity(activity_);
-        } catch (err) {
-          console.log(err);
-          setError("Failed to fetch activity.");
-        }
+        return;
       }
-    };
 
-    fetchCategories();
+      setIsNew(false);
+
+      try {
+        const activity = await getActivity(categoryId, activityId);
+        setActivity(activity);
+      } catch (err) {
+        console.log(err);
+        setError("Failed to fetch activity.");
+      }
+    }
+
+    void fetchActivity();
   }, [activityId, categoryId]);
-
-  const handleNameChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setActivityField(NAME, event.target.value);
-  };
-
-  const handleCategoryChange = (cat: string) => {
-    setActivityField(CATEGORY, cat);
-  };
-
-  const handleInterestChange = (tier: Tier) => {
-    setActivityField(INTEREST, tier);
-  };
-
-  const handleEffortChange = (tier: Tier) => {
-    setActivityField(EFFORT, tier);
-  };
 
   const setActivityField = <K extends keyof Activity>(
     field: K,
@@ -116,8 +91,29 @@ const ActivityPage = () => {
     }));
   };
 
+  const handleNameChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    setActivityField(NAME, event.target.value);
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setActivityField(CATEGORY, category);
+  };
+
+  const handleInterestChange = (interest: Tier) => {
+    setActivityField(INTEREST, interest);
+  };
+
+  const handleEffortChange = (effort: Tier) => {
+    setActivityField(EFFORT, effort);
+  };
+
   const reset = () => {
-    setActivity({ ...NULL_ACTIVITY, category: activity.category });
+    setActivity({
+      ...NULL_ACTIVITY,
+      category: activity.category,
+    });
     setError("");
   };
 
@@ -137,22 +133,22 @@ const ActivityPage = () => {
         case ACTIONS.UPDATE:
           await updateActivity(activity);
           break;
-        case ACTIONS.REMOVE:
+
+        case ACTIONS.DELETE:
           await removeActivity(activity);
           setDeleteSucceeded(true);
           break;
+
         case ACTIONS.ADD:
-          if (!activity.category || !activity.name) {
-            setError("category and name must be provided.");
-            return;
-          }
           await addActivity(activity);
           reset();
           break;
       }
+
       setMessage(`${action} ${activity.name} succeeded!`);
     } catch (err) {
       console.log(err);
+
       if (err instanceof ClientArgumentError) {
         setError(
           `${action} activity failed. Invalid arguments provided. ${err.message}`,
@@ -160,12 +156,12 @@ const ActivityPage = () => {
       } else if (err instanceof API_Error) {
         setError(`${action} activity failed with error message ${err.message}`);
       } else {
-        setError("Unknown error occured.");
+        setError("Unknown error occurred.");
       }
     }
   };
 
-  const handleConfirm = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleConfirm = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     void takeEditAction(ACTIONS.ADD);
   };
@@ -177,86 +173,38 @@ const ActivityPage = () => {
           <Typography variant="h4" component="h1" gutterBottom>
             {isNew ? "Add Activity" : "Edit Activity"}
           </Typography>
+
           <Link href="/home">Back to Home</Link>
+
           {error && (
-            <Alert severity="error" sx={{ marginBottom: "1rem" }}>
+            <Alert severity="error" sx={{ mb: 2 }}>
               {error}
             </Alert>
           )}
+
           {message && (
-            <Alert severity="info" sx={{ marginBottom: "1rem" }}>
+            <Alert severity="info" sx={{ mb: 2 }}>
               {message}
             </Alert>
           )}
-          <Stack spacing={3}>
-            <Box
-              component="form"
-              onSubmit={handleConfirm}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 3,
-              }}
-            >
-              {!isNew ? (
-                <>
-                  <Typography variant="h6" component="h3">
-                    CATEGORY: {activity.category}
-                  </Typography>
-                  <Typography variant="h6" component="h4">
-                    ACTIVITY: {activity.name}
-                  </Typography>
-                </>
-              ) : (
-                <>
-                  <CategorySearchInput
-                    setCategory={handleCategoryChange}
-                    setError={setError}
-                  />
-                  <TextField
-                    id="outlined-basic"
-                    placeholder={"Enter Activity Name"}
-                    value={activity.name}
-                    onChange={handleNameChange}
-                  />
-                </>
-              )}
-              {!deleteSucceeded ? (
-                <>
-                  <FilterDropdown
-                    title={INTEREST}
-                    handleChange={handleInterestChange}
-                    value={activity?.interest}
-                  />
-                  <FilterDropdown
-                    title={EFFORT}
-                    handleChange={handleEffortChange}
-                    value={activity?.effort}
-                  />
-                  {activityId && categoryId ? (
-                    <>
-                      <Button onClick={() => takeEditAction(ACTIONS.UPDATE)}>
-                        UPDATE
-                      </Button>
-                      <Button onClick={() => takeEditAction(ACTIONS.REMOVE)}>
-                        REMOVE
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      type="submit"
-                      disabled={!activity?.category || !activity?.name}
-                    >
-                      ADD
-                    </Button>
-                  )}
-                </>
-              ) : null}
-            </Box>
-          </Stack>
+
+          <ActivityForm
+            activity={activity}
+            isNew={isNew}
+            deleteSucceeded={deleteSucceeded}
+            setError={setError}
+            onSubmit={handleConfirm}
+            onUpdate={() => void takeEditAction(ACTIONS.UPDATE)}
+            onRemove={() => void takeEditAction(ACTIONS.DELETE)}
+            onCategoryChange={handleCategoryChange}
+            onInterestChange={handleInterestChange}
+            onEffortChange={handleEffortChange}
+            onNameChange={handleNameChange}
+          />
         </Paper>
       </Container>
     </Box>
   );
 };
+
 export default ActivityPage;
