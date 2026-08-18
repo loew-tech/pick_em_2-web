@@ -15,6 +15,7 @@ import {
 } from "../api/client";
 import { CATEGORY, EFFORT, INTEREST, NAME } from "../common/constants";
 import { API_Error, ClientArgumentError } from "../common/errors";
+import LoadingSpinner from "../components/loadingSpinner/LoadingSpinner";
 
 const NULL_ACTIVITY: Activity = {
   name: "",
@@ -37,6 +38,7 @@ const ActivityPage = () => {
   const { categoryId, activityId } = useParams();
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(true);
   const [activity, setActivity] = useState<Activity>({ ...NULL_ACTIVITY });
   const [isNew, setIsNew] = useState(false);
   const [deleteSucceeded, setDeleteSucceeded] = useState(false);
@@ -51,6 +53,7 @@ const ActivityPage = () => {
         if (!tokens?.idToken) {
           navigate("/login", { replace: true });
         }
+        setLoading(false);
       } catch {
         navigate("/login", { replace: true });
       }
@@ -165,6 +168,10 @@ const ActivityPage = () => {
     event.preventDefault();
     void takeEditAction(ACTIONS.ADD);
   };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <Box component="main">

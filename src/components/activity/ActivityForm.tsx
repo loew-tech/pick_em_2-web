@@ -23,7 +23,7 @@ interface ActivityFormProps {
   ) => void;
 }
 
-export default function ActivityForm({
+const ActivityForm = ({
   activity,
   isNew,
   deleteSucceeded,
@@ -35,7 +35,7 @@ export default function ActivityForm({
   onInterestChange,
   onEffortChange,
   onNameChange,
-}: ActivityFormProps) {
+}: ActivityFormProps) => {
   return (
     <Box
       component="form"
@@ -108,4 +108,5 @@ export default function ActivityForm({
       )}
     </Box>
   );
-}
+};
+export default ActivityForm;
