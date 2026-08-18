@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Alert, Box, Container, Paper } from "@mui/material";
+
+import { Alert, Box, Container, Link, Paper } from "@mui/material";
+
 import RegistrationConfirmationForm from "../components/auth/RegistrationConfirmationForm";
 import RegistrationForm from "../components/auth/RegistrationForm";
 
@@ -31,6 +33,7 @@ const Register = () => {
               setNeedsConfirmation={setNeedsConfirmation}
             />
           )}
+          <Link href="/login">Already Registered? Sign In.</Link>
         </Paper>
       </Container>
     </Box>

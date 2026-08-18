@@ -1,6 +1,7 @@
 import { useState, useEffect, type ChangeEvent } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 
+import { fetchAuthSession } from "aws-amplify/auth";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -42,13 +43,29 @@ const ACTIONS = {
 type Action = (typeof ACTIONS)[keyof typeof ACTIONS];
 
 const ActivityPage = () => {
-  const navigate = useNavigate();
   const { categoryId, activityId } = useParams();
+  const navigate = useNavigate();
 
   const [activity, setActivity] = useState<Activity>({ ...NULL_ACTIVITY });
   const [isNew, setIsNew] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function checkAuthentication() {
+      try {
+        const { tokens } = await fetchAuthSession();
+
+        if (!tokens?.idToken) {
+          navigate("/login", { replace: true });
+        }
+      } catch {
+        navigate("/login");
+      }
+    }
+
+    void checkAuthentication();
+  }, [navigate]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -99,11 +116,10 @@ const ActivityPage = () => {
   };
 
   const reset = () => {
-    setActivity({ ...NULL_ACTIVITY });
+    setActivity({ ...NULL_ACTIVITY, category: activity.category });
     setError("");
   };
 
-  // @TODO: reset page on successful add and add feedback
   const takeEditAction = async (action: Action) => {
     if (action === ACTIONS.CANCEL) {
       navigate("/home");
@@ -132,7 +148,7 @@ const ActivityPage = () => {
           reset();
           break;
       }
-      setMessage(`${action} activity succeeded!`);
+      setMessage(`${action} ${activity.name} succeeded!`);
     } catch (err) {
       console.log(err);
       if (err instanceof ClientArgumentError) {

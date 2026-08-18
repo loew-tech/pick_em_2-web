@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { signIn, signOut } from "aws-amplify/auth";
+import { useEffect, useState } from "react";
+
+import { fetchAuthSession, signIn, signOut } from "aws-amplify/auth";
 import { useNavigate } from "react-router-dom";
 import {
   Alert,
@@ -19,6 +20,22 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function checkAuthentication() {
+      try {
+        const { tokens } = await fetchAuthSession();
+
+        if (tokens?.idToken) {
+          navigate("/home", { replace: true });
+        }
+      } catch {
+        // No authenticated session; remain on the login page.
+      }
+    }
+
+    void checkAuthentication();
+  }, [navigate]);
 
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();

@@ -4,7 +4,6 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./index.css";
 
 import "./auth/amplify";
-import App from "./App.tsx";
 import Login from "./pages/login.tsx";
 import Register from "./pages/register.tsx";
 import Home from "./pages/home.tsx";
@@ -15,17 +14,16 @@ createRoot(document.getElementById("root")!).render(
     {/* @TODO: move to /Routes */}
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="register" element={<Register />} />{" "}
-        <Route path="/home" element={<Home />} />
         <Route path="/activities/new" element={<ActivityPage />} />
         <Route
           path="/categories/:categoryId/activities/:activityId"
           element={<ActivityPage />}
         />
         {/* @TODO: Redirect to home and have home redirect to login if not auth */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
