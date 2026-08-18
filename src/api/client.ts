@@ -123,7 +123,6 @@ export async function removeActivity(activity: Activity): Promise<void> {
       method: "DELETE",
       headers: {
         Authorization: authHeader,
-        "Content-Type": "application/json",
       },
     },
   );
