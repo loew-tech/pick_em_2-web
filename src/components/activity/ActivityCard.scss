@@ -1,0 +1,88 @@
+.activity-card {
+  width: 100%;
+  min-height: 100px;
+  padding: 1.25rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
+  background: #fff;
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0, 0, 0, 0.16);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &__name {
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  &__metadata {
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &__tag {
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+
+    // Interest: high is desirable
+    &--interest-low {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    &--interest-medium {
+      background: #fff8e1;
+      color: #f57f17;
+    }
+
+    &--interest-high {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    // Effort: low is desirable
+    &--effort-low {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    &--effort-medium {
+      background: #fff8e1;
+      color: #f57f17;
+    }
+
+    &--effort-high {
+      background: #ffebee;
+      color: #c62828;
+    }
+  }
+}

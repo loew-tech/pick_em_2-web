@@ -17,6 +17,8 @@ import { CATEGORY, EFFORT, INTEREST, NAME } from "../common/constants";
 import { API_Error, ClientArgumentError } from "../common/errors";
 import LoadingSpinner from "../components/loadingSpinner/LoadingSpinner";
 
+import "./activity.scss";
+
 const NULL_ACTIVITY: ActivityData = {
   name: "",
   category: "",
@@ -173,40 +175,50 @@ const ActivityPage = () => {
   }
 
   return (
-    <Box component="main">
+    <Box component="main" className="activity-page">
       <Container maxWidth="sm">
-        <Paper elevation={3} sx={{ mt: 8, p: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            {isNew ? "Add Activity" : "Edit Activity"}
-          </Typography>
+        <Paper className="activity-page__card" elevation={0}>
+          <Box className="activity-page__header">
+            <Typography
+              variant="h4"
+              component="h1"
+              className="activity-page__title"
+            >
+              {isNew ? "Add Activity" : "Edit Activity"}
+            </Typography>
 
-          <Link href="/home">Back to Home</Link>
+            <Link
+              href="/home"
+              className="activity-page__back-link"
+              underline="hover"
+            >
+              Back to Home
+            </Link>
+          </Box>
 
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
+          {(error || message) && (
+            <Box className="activity-page__messages">
+              {error && <Alert severity="error">{error}</Alert>}
+
+              {message && <Alert severity="success">{message}</Alert>}
+            </Box>
           )}
 
-          {message && (
-            <Alert severity="info" sx={{ mb: 2 }}>
-              {message}
-            </Alert>
-          )}
-
-          <ActivityForm
-            activity={activity}
-            isNew={isNew}
-            deleteSucceeded={deleteSucceeded}
-            setError={setError}
-            onSubmit={handleConfirm}
-            onUpdate={() => void takeEditAction(ACTIONS.UPDATE)}
-            onRemove={() => void takeEditAction(ACTIONS.DELETE)}
-            onCategoryChange={handleCategoryChange}
-            onInterestChange={handleInterestChange}
-            onEffortChange={handleEffortChange}
-            onNameChange={handleNameChange}
-          />
+          <Box className="activity-page__form">
+            <ActivityForm
+              activity={activity}
+              isNew={isNew}
+              deleteSucceeded={deleteSucceeded}
+              setError={setError}
+              onSubmit={handleConfirm}
+              onUpdate={() => void takeEditAction(ACTIONS.UPDATE)}
+              onRemove={() => void takeEditAction(ACTIONS.DELETE)}
+              onCategoryChange={handleCategoryChange}
+              onInterestChange={handleInterestChange}
+              onEffortChange={handleEffortChange}
+              onNameChange={handleNameChange}
+            />
+          </Box>
         </Paper>
       </Container>
     </Box>
