@@ -1,6 +1,6 @@
 import { fetchAuthSession } from "aws-amplify/auth";
 
-import type { Activity, Tier } from "../models/Activity";
+import type { Activity, ActivityData, Tier } from "../models/Activity";
 import type { Pick } from "../models/Pick";
 import { CATEGORY } from "../common/constants";
 import {
@@ -79,8 +79,11 @@ export async function getActivity(
   return (await response.json()) as Activity;
 }
 
-export async function updateActivity(activity: Activity) {
-  if (!activity.activity_id) {
+export async function updateActivity(
+  activityId: string | undefined,
+  activity: ActivityData,
+): Promise<void> {
+  if (!activityId) {
     throw new ClientArgumentError(
       "Activity object must have valid activity_id in order to update.",
     );
@@ -89,7 +92,7 @@ export async function updateActivity(activity: Activity) {
   const authHeader = await getAuthHeader();
 
   const response = await fetch(
-    `${API_URL}/categories/${encodeURIComponent(activity.category)}/activities/${encodeURIComponent(activity.activity_id)}`,
+    `${API_URL}/categories/${encodeURIComponent(activity.category)}/activities/${encodeURIComponent(activityId)}`,
     {
       method: "PUT",
       headers: {
@@ -108,8 +111,11 @@ export async function updateActivity(activity: Activity) {
   }
 }
 
-export async function removeActivity(activity: Activity): Promise<void> {
-  if (!activity.activity_id) {
+export async function removeActivity(
+  activityId: string | undefined,
+  activity: ActivityData,
+): Promise<void> {
+  if (!activityId) {
     throw new ClientArgumentError(
       "Activity object must have a valid activity_id in order to remove.",
     );
@@ -118,7 +124,7 @@ export async function removeActivity(activity: Activity): Promise<void> {
   const authHeader = await getAuthHeader();
 
   const response = await fetch(
-    `${API_URL}/categories/${encodeURIComponent(activity.category)}/activities/${encodeURIComponent(activity.activity_id)}`,
+    `${API_URL}/categories/${encodeURIComponent(activity.category)}/activities/${encodeURIComponent(activityId)}`,
     {
       method: "DELETE",
       headers: {
@@ -132,7 +138,7 @@ export async function removeActivity(activity: Activity): Promise<void> {
   }
 }
 
-export async function addActivity(activity: Activity) {
+export async function addActivity(activity: ActivityData): Promise<void> {
   if (!isValidCategory(activity.category)) {
     throw new ClientArgumentError(CATEGORY);
   }
@@ -194,7 +200,7 @@ function isValidCategory(category: string): boolean {
   return !INVALID_CATEGORY_CHARS.test(category);
 }
 
-function activityToJSONRequestObject(activity: Activity): string {
+function activityToJSONRequestObject(activity: ActivityData): string {
   return JSON.stringify({
     name: activity.name,
     body: {

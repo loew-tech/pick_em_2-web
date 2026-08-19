@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { Alert, Box, Container, Link, Paper, Typography } from "@mui/material";
 
-import { Tier, type Activity } from "../models/Activity";
+import { Tier, type ActivityData } from "../models/Activity";
 import ActivityForm from "../components/activity/ActivityForm";
 import {
   addActivity,
@@ -17,10 +17,9 @@ import { CATEGORY, EFFORT, INTEREST, NAME } from "../common/constants";
 import { API_Error, ClientArgumentError } from "../common/errors";
 import LoadingSpinner from "../components/loadingSpinner/LoadingSpinner";
 
-const NULL_ACTIVITY: Activity = {
+const NULL_ACTIVITY: ActivityData = {
   name: "",
   category: "",
-  activity_id: "",
   interest: Tier.LOW,
   effort: Tier.LOW,
 };
@@ -39,7 +38,7 @@ const ActivityPage = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [activity, setActivity] = useState<Activity>({ ...NULL_ACTIVITY });
+  const [activity, setActivity] = useState<ActivityData>({ ...NULL_ACTIVITY });
   const [isNew, setIsNew] = useState(false);
   const [deleteSucceeded, setDeleteSucceeded] = useState(false);
   const [message, setMessage] = useState("");
@@ -84,9 +83,9 @@ const ActivityPage = () => {
     void fetchActivity();
   }, [activityId, categoryId]);
 
-  const setActivityField = <K extends keyof Activity>(
+  const setActivityField = <K extends keyof ActivityData>(
     field: K,
-    value: Activity[K],
+    value: ActivityData[K],
   ) => {
     setActivity((current) => ({
       ...current,
@@ -134,11 +133,11 @@ const ActivityPage = () => {
     try {
       switch (action) {
         case ACTIONS.UPDATE:
-          await updateActivity(activity);
+          await updateActivity(activityId, activity);
           break;
 
         case ACTIONS.DELETE:
-          await removeActivity(activity);
+          await removeActivity(activityId, activity);
           setDeleteSucceeded(true);
           break;
 

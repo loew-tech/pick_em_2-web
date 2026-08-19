@@ -240,7 +240,7 @@ describe("updateActivity", () => {
   it("updates an activity", async () => {
     vi.mocked(fetch).mockResolvedValue(mockResponse());
 
-    await updateActivity(activity);
+    await updateActivity("", activity);
 
     expect(fetch).toHaveBeenCalledWith(
       `${API_URL}/categories/movies/activities/activity-1`,
@@ -264,7 +264,7 @@ describe("updateActivity", () => {
       activity_id: "",
     };
 
-    await expect(updateActivity(invalidActivity)).rejects.toBeInstanceOf(
+    await expect(updateActivity("", invalidActivity)).rejects.toBeInstanceOf(
       ClientArgumentError,
     );
 
@@ -275,16 +275,19 @@ describe("updateActivity", () => {
   it("throws API_Error when the request fails", async () => {
     vi.mocked(fetch).mockResolvedValue(mockResponse(undefined, 400));
 
-    await expect(updateActivity(activity)).rejects.toBeInstanceOf(API_Error);
+    await expect(
+      updateActivity(activity.activity_id, activity),
+    ).rejects.toBeInstanceOf(API_Error);
   });
 
   it("encodes the category and activity ID", async () => {
     vi.mocked(fetch).mockResolvedValue(mockResponse());
 
-    await updateActivity({
-      ...activity,
+    await updateActivity("activity/1", {
+      name: activity.name,
+      interest: activity.interest,
+      effort: activity.effort,
       category: "sci/fi",
-      activity_id: "activity/1",
     });
 
     expect(fetch).toHaveBeenCalledWith(
@@ -300,7 +303,7 @@ describe("removeActivity", () => {
   it("removes an activity", async () => {
     vi.mocked(fetch).mockResolvedValue(mockResponse());
 
-    await removeActivity(activity);
+    await removeActivity(activity.activity_id, activity);
 
     expect(fetch).toHaveBeenCalledWith(
       `${API_URL}/categories/movies/activities/activity-1`,
@@ -319,9 +322,9 @@ describe("removeActivity", () => {
       activity_id: "",
     };
 
-    await expect(removeActivity(invalidActivity)).rejects.toBeInstanceOf(
-      ClientArgumentError,
-    );
+    await expect(
+      removeActivity(invalidActivity.activity_id, invalidActivity),
+    ).rejects.toBeInstanceOf(ClientArgumentError);
 
     expect(fetch).not.toHaveBeenCalled();
     expect(mockFetchAuthSession).not.toHaveBeenCalled();
@@ -330,7 +333,9 @@ describe("removeActivity", () => {
   it("throws API_Error when the request fails", async () => {
     vi.mocked(fetch).mockResolvedValue(mockResponse(undefined, 404));
 
-    await expect(removeActivity(activity)).rejects.toBeInstanceOf(API_Error);
+    await expect(
+      removeActivity(activity.activity_id, activity),
+    ).rejects.toBeInstanceOf(API_Error);
   });
 });
 

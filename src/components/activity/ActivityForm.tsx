@@ -2,13 +2,13 @@ import type { ChangeEvent, FormEventHandler } from "react";
 
 import { Box, Button, TextField, Typography } from "@mui/material";
 
-import { Tier, type Activity } from "../../models/Activity";
+import { Tier, type ActivityData } from "../../models/Activity";
 import CategorySearchInput from "../categories/CategorySearchInput";
 import { FilterDropdown } from "./FilterDropdown";
 import { EFFORT, INTEREST } from "../../common/constants";
 
 interface ActivityFormProps {
-  activity: Activity;
+  activity: ActivityData;
   isNew: boolean;
   deleteSucceeded: boolean;
   setError: (error: string) => void;
