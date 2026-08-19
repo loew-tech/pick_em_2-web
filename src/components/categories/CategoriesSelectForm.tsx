@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getCategoriesIds } from "../../api/client";
+import LoadingSpinner from "../loadingSpinner/LoadingSpinner";
 
 interface CategorySelectProps {
   onSelect: (
@@ -18,13 +19,16 @@ const CategorySelectForm = ({
   onSelect: handleChange,
   setError,
 }: CategorySelectProps) => {
+  const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const cats = await getCategoriesIds();
-        setCategories(cats.categories);
+        const { categories } = await getCategoriesIds();
+        console.log("cats", categories);
+        setCategories(categories);
+        setLoading(false);
       } catch (err) {
         console.log(err);
         setError("Failed to fetch categories");
@@ -33,6 +37,10 @@ const CategorySelectForm = ({
 
     fetchCategories();
   }, [setError]);
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">

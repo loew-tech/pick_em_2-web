@@ -48,7 +48,9 @@ const PickEmHomeActionButtons = ({
       >
         Explore!
       </Button>
-      <Button onClick={() => navigate("/activities/new")}>Add New!</Button>
+      <Button onClick={() => navigate("/activities/new")}>
+        Add New Activity!
+      </Button>
     </Box>
   );
 };

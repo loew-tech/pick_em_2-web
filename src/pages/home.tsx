@@ -5,10 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { Alert, Box, Button, Typography } from "@mui/material";
 
 import PickEmHomeContainer from "../homePage/PickEmHomeContainer";
-import LoadingSpinner from "../components/loadingSpinner/LoadingSpinner";
 
 const Home = () => {
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
 
   const navigate = useNavigate();
@@ -21,7 +19,6 @@ const Home = () => {
         if (!tokens?.idToken) {
           navigate("/login", { replace: true });
         }
-        setLoading(false);
       } catch {
         navigate("/login");
       }
@@ -56,11 +53,7 @@ const Home = () => {
       </Box>
 
       {error && <Alert severity="error">{error}</Alert>}
-      {loading ? (
-        <LoadingSpinner size={60} />
-      ) : (
-        <PickEmHomeContainer setError={setError} />
-      )}
+      <PickEmHomeContainer setError={setError} />
     </Box>
   );
 };
