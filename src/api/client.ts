@@ -9,11 +9,12 @@ import {
   ClientArgumentError,
 } from "../common/errors";
 import type { Category } from "../models/Category";
+import type { CategoriesIdsResponse } from "../common/types";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const INVALID_CATEGORY_CHARS = /[\\/?#%]/;
 
-export async function getCategoriesIds(): Promise<string[]> {
+export async function getCategoriesIds(): Promise<CategoriesIdsResponse> {
   const authHeader = await getAuthHeader();
 
   const response = await fetch(`${API_URL}/categories`, {
