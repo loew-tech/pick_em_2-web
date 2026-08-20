@@ -3,6 +3,8 @@ import { useState } from "react";
 import { signUp } from "aws-amplify/auth";
 import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 
+import "./RegistrationForm.scss";
+
 interface RegistrationFormProps {
   username: string;
   setUsername: (username: string) => void;
@@ -11,6 +13,7 @@ interface RegistrationFormProps {
   setNeedsConfirmation: (needsConfirmation: boolean) => void;
   setError: (error: string) => void;
 }
+
 const RegistrationForm = ({
   username,
   setUsername,
@@ -44,18 +47,29 @@ const RegistrationForm = ({
   };
 
   return (
-    <Stack spacing={3}>
-      <Box>
-        <Typography variant="h4" component="h1" gutterBottom>
+    <Stack className="registration-form" spacing={3}>
+      <Box className="registration-form__header">
+        <Typography
+          className="registration-form__title"
+          variant="h4"
+          component="h1"
+        >
           Create Account
         </Typography>
 
-        <Typography color="text.secondary">
+        <Typography
+          className="registration-form__description"
+          color="text.secondary"
+        >
           Create your Pick&apos;em account
         </Typography>
       </Box>
 
-      <Box component="form" onSubmit={handleRegister}>
+      <Box
+        className="registration-form__form"
+        component="form"
+        onSubmit={handleRegister}
+      >
         <Stack spacing={3}>
           <TextField
             label="Username"
@@ -79,6 +93,7 @@ const RegistrationForm = ({
 
           <TextField
             label="Email"
+            type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
@@ -86,7 +101,13 @@ const RegistrationForm = ({
             autoComplete="email"
           />
 
-          <Button type="submit" variant="contained" size="large" fullWidth>
+          <Button
+            type="submit"
+            variant="contained"
+            size="large"
+            fullWidth
+            disabled={!username || !password || !email}
+          >
             Register
           </Button>
         </Stack>
@@ -94,4 +115,5 @@ const RegistrationForm = ({
     </Stack>
   );
 };
+
 export default RegistrationForm;

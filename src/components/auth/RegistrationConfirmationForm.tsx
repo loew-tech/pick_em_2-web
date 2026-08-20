@@ -4,12 +4,15 @@ import { useNavigate } from "react-router-dom";
 import { confirmSignUp } from "aws-amplify/auth";
 import { Box, Button, Link, Stack, TextField, Typography } from "@mui/material";
 
+import "./RegistrationConfirmationForm.scss";
+
 interface RegistrationConfirmationFormProps {
   username: string;
   email: string;
   setError: (error: string) => void;
   setNeedsConfirmation: (needsConfirmation: boolean) => void;
 }
+
 const RegistrationConfirmationForm = ({
   username,
   email,
@@ -38,18 +41,29 @@ const RegistrationConfirmationForm = ({
   };
 
   return (
-    <Stack spacing={3}>
-      <Box>
-        <Typography variant="h4" component="h1" gutterBottom>
+    <Stack className="confirmation-form" spacing={3}>
+      <Box className="confirmation-form__header">
+        <Typography
+          className="confirmation-form__title"
+          variant="h4"
+          component="h1"
+        >
           Confirm Your Account
         </Typography>
 
-        <Typography color="text.secondary">
-          A confirmation code was sent to {email}.
+        <Typography
+          className="confirmation-form__description"
+          color="text.secondary"
+        >
+          A confirmation code was sent to <strong>{email}</strong>.
         </Typography>
       </Box>
 
-      <Box component="form" onSubmit={handleConfirm}>
+      <Box
+        className="confirmation-form__form"
+        component="form"
+        onSubmit={handleConfirm}
+      >
         <Stack spacing={3}>
           <TextField
             label="Confirmation Code"
@@ -58,15 +72,28 @@ const RegistrationConfirmationForm = ({
             required
             fullWidth
             autoFocus
+            slotProps={{
+              htmlInput: {
+                inputMode: "numeric",
+                autoComplete: "one-time-code",
+              },
+            }}
           />
 
-          <Button type="submit" variant="contained" size="large" fullWidth>
+          <Button
+            type="submit"
+            variant="contained"
+            size="large"
+            fullWidth
+            disabled={!confirmationCode}
+          >
             Confirm Account
           </Button>
         </Stack>
       </Box>
 
       <Link
+        className="confirmation-form__back"
         component="button"
         type="button"
         onClick={() => {
@@ -80,4 +107,5 @@ const RegistrationConfirmationForm = ({
     </Stack>
   );
 };
+
 export default RegistrationConfirmationForm;
