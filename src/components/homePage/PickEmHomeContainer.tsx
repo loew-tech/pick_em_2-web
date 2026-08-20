@@ -26,6 +26,7 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
   const [interest, setInterest] = useState<Tier>(Tier.LOW);
   const [effort, setEffort] = useState<Tier>(Tier.LOW);
   const [pick, setPick] = useState<Pick | null>(null);
+  const [pickMade, setPickMade] = useState(false);
 
   const handleInterestChange = (tier: Tier) => {
     setInterest(tier);
@@ -41,6 +42,7 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
     try {
       const pick = await getPick(selectedCategoriesIds, interest, effort);
       setPick(pick);
+      setPickMade(true);
     } catch (err) {
       console.log(err);
       setError("Failed to make pick.");
@@ -102,7 +104,7 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
                 setError={setError}
               />
             </Box>
-            {pick && (
+            {pickMade && (
               <Box className="pick-em-home__result">
                 <PickCard pick={pick} />
               </Box>

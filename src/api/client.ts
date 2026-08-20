@@ -166,7 +166,7 @@ export async function getPick(
   categoryIds: string[],
   interest: Tier,
   effort: Tier,
-): Promise<Pick> {
+): Promise<Pick | null> {
   const authHeader = await getAuthHeader();
 
   const response = await fetch(`${API_URL}/pick`, {
@@ -181,6 +181,10 @@ export async function getPick(
       effort,
     }),
   });
+
+  if (response.status == 404) {
+    return null;
+  }
 
   if (!response.ok) {
     throw new API_Error(response.status);
