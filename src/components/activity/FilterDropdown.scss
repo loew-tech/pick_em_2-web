@@ -1,0 +1,33 @@
+.filter-dropdown {
+  min-width: 8rem;
+  margin: 0.5rem;
+
+  &__label {
+    margin-bottom: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04rem;
+    text-transform: uppercase;
+  }
+
+  &__select {
+    min-width: 8rem;
+
+    .MuiSelect-select {
+      padding: 0.65rem 0.9rem;
+      font-size: 0.95rem;
+    }
+
+    .MuiOutlinedInput-notchedOutline {
+      border-color: rgba(0, 0, 0, 0.18);
+    }
+
+    &:hover .MuiOutlinedInput-notchedOutline {
+      border-color: rgba(0, 0, 0, 0.35);
+    }
+
+    &.Mui-focused .MuiOutlinedInput-notchedOutline {
+      border-width: 1px;
+    }
+  }
+}

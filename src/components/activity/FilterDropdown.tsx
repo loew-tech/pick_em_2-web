@@ -6,6 +6,8 @@ import type { SelectChangeEvent } from "@mui/material/Select";
 
 import { Tier } from "../../models/Activity";
 
+import "./FilterDropdown.scss";
+
 type FilterDropdownProps = {
   title: string;
   value: Tier;
@@ -27,19 +29,25 @@ export const FilterDropdown = ({
   };
 
   return (
-    <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
-      <FormLabel>{toTitleCase(title)}</FormLabel>
+    <FormControl
+      className="filter-dropdown"
+      component="fieldset"
+      variant="standard"
+    >
+      <FormLabel className="filter-dropdown__label">
+        {toTitleCase(title)}
+      </FormLabel>
 
       <Select
+        className="filter-dropdown__select"
         labelId={`${title}-select`}
         id={`${title}-select`}
         value={value}
-        label={title}
         onChange={onChange}
       >
-        <MenuItem value={Tier.LOW}>low</MenuItem>
-        <MenuItem value={Tier.MEDIUM}>medium</MenuItem>
-        <MenuItem value={Tier.HIGH}>high</MenuItem>
+        <MenuItem value={Tier.LOW}>Low</MenuItem>
+        <MenuItem value={Tier.MEDIUM}>Medium</MenuItem>
+        <MenuItem value={Tier.HIGH}>High</MenuItem>
       </Select>
     </FormControl>
   );

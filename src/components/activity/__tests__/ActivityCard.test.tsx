@@ -49,15 +49,33 @@ describe("ActivityCard", () => {
   it("renders the interest and effort", () => {
     render(<ActivityCard activity={activity} />);
 
-    expect(screen.getByText(`${INTEREST}: MEDIUM`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`${INTEREST.toUpperCase()}: MEDIUM`),
+    ).toBeInTheDocument();
 
-    expect(screen.getByText(`${EFFORT}: LOW`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`${EFFORT.toUpperCase()}: LOW`),
+    ).toBeInTheDocument();
+  });
+
+  it("applies the activity card class", () => {
+    render(<ActivityCard activity={activity} />);
+
+    expect(
+      screen.getByRole("button").querySelector(".activity-card"),
+    ).toBeInTheDocument();
+  });
+
+  it("applies the button class", () => {
+    render(<ActivityCard activity={activity} />);
+
+    expect(screen.getByRole("button")).toHaveClass("activity-card-button");
   });
 
   it("applies the correct interest tier class", () => {
     render(<ActivityCard activity={activity} />);
 
-    expect(screen.getByText(`${INTEREST}: MEDIUM`)).toHaveClass(
+    expect(screen.getByText(`${INTEREST.toUpperCase()}: MEDIUM`)).toHaveClass(
       "activity-card__tag--interest-medium",
     );
   });
@@ -65,16 +83,16 @@ describe("ActivityCard", () => {
   it("applies the correct effort tier class", () => {
     render(<ActivityCard activity={activity} />);
 
-    expect(screen.getByText(`${EFFORT}: LOW`)).toHaveClass(
+    expect(screen.getByText(`${EFFORT.toUpperCase()}: LOW`)).toHaveClass(
       "activity-card__tag--effort-low",
     );
   });
 
   it.each([
-    [Tier.LOW, "low"],
-    [Tier.MEDIUM, "medium"],
-    [Tier.HIGH, "high"],
-  ])("applies the %s interest class", (tier, expectedClass) => {
+    [Tier.LOW, "LOW", "low"],
+    [Tier.MEDIUM, "MEDIUM", "medium"],
+    [Tier.HIGH, "HIGH", "high"],
+  ])("applies the %s interest class", (tier, label, expectedClass) => {
     render(
       <ActivityCard
         activity={{
@@ -84,16 +102,16 @@ describe("ActivityCard", () => {
       />,
     );
 
-    expect(screen.getByText(new RegExp(`^${INTEREST}:`))).toHaveClass(
-      `activity-card__tag--interest-${expectedClass}`,
-    );
+    expect(
+      screen.getByText(new RegExp(`^${INTEREST.toUpperCase()}: ${label}$`)),
+    ).toHaveClass(`activity-card__tag--interest-${expectedClass}`);
   });
 
   it.each([
-    [Tier.LOW, "low"],
-    [Tier.MEDIUM, "medium"],
-    [Tier.HIGH, "high"],
-  ])("applies the %s effort class", (tier, expectedClass) => {
+    [Tier.LOW, "LOW", "low"],
+    [Tier.MEDIUM, "MEDIUM", "medium"],
+    [Tier.HIGH, "HIGH", "high"],
+  ])("applies the %s effort class", (tier, label, expectedClass) => {
     render(
       <ActivityCard
         activity={{
@@ -103,17 +121,15 @@ describe("ActivityCard", () => {
       />,
     );
 
-    expect(screen.getByText(new RegExp(`^${EFFORT}:`))).toHaveClass(
-      `activity-card__tag--effort-${expectedClass}`,
-    );
+    expect(
+      screen.getByText(new RegExp(`^${EFFORT.toUpperCase()}: ${label}$`)),
+    ).toHaveClass(`activity-card__tag--effort-${expectedClass}`);
   });
 
   it("navigates to the activity when clicked", () => {
     render(<ActivityCard activity={activity} />);
 
-    const button = screen.getByRole("button");
-
-    fireEvent.click(button);
+    fireEvent.click(screen.getByRole("button"));
 
     expect(mockNavigate).toHaveBeenCalledOnce();
     expect(mockNavigate).toHaveBeenCalledWith(
