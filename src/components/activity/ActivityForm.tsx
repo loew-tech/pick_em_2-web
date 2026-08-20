@@ -1,4 +1,4 @@
-import type { ChangeEvent, FormEventHandler } from "react";
+import type { ChangeEvent, SubmitEventHandler } from "react";
 
 import { Box, Button, TextField, Typography } from "@mui/material";
 
@@ -12,7 +12,7 @@ interface ActivityFormProps {
   isNew: boolean;
   deleteSucceeded: boolean;
   setError: (error: string) => void;
-  onSubmit: FormEventHandler<HTMLFormElement>;
+  onSubmit: SubmitEventHandler<HTMLFormElement>;
   onUpdate: () => void;
   onRemove: () => void;
   onCategoryChange: (category: string) => void;
@@ -46,17 +46,7 @@ const ActivityForm = ({
         gap: 3,
       }}
     >
-      {!isNew ? (
-        <>
-          <Typography variant="h6" component="h2">
-            CATEGORY: {activity.category}
-          </Typography>
-
-          <Typography variant="h6" component="h3">
-            ACTIVITY: {activity.name}
-          </Typography>
-        </>
-      ) : (
+      {isNew ? (
         <>
           <CategorySearchInput
             setCategory={onCategoryChange}
@@ -69,6 +59,16 @@ const ActivityForm = ({
             value={activity.name}
             onChange={onNameChange}
           />
+        </>
+      ) : (
+        <>
+          <Typography variant="h6" component="h2">
+            CATEGORY: {activity.category}
+          </Typography>
+
+          <Typography variant="h6" component="h3">
+            ACTIVITY: {activity.name}
+          </Typography>
         </>
       )}
 
@@ -89,17 +89,18 @@ const ActivityForm = ({
           {isNew ? (
             <Button
               type="submit"
+              variant="contained"
               disabled={!activity.category || !activity.name}
             >
               ADD
             </Button>
           ) : (
             <>
-              <Button type="button" onClick={onUpdate}>
+              <Button type="button" variant="contained" onClick={onUpdate}>
                 UPDATE
               </Button>
 
-              <Button type="button" onClick={onRemove}>
+              <Button type="button" variant="outlined" onClick={onRemove}>
                 DELETE
               </Button>
             </>

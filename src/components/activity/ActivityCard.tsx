@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
 
-import { Paper, Stack, Typography, ButtonBase } from "@mui/material";
+import { ButtonBase, Paper, Stack, Typography } from "@mui/material";
 
 import { Tier, TIER_LABELS, type Activity } from "../../models/Activity";
-import { EFFORT, INTEREST } from "../../common/constants";
 
 import "./ActivityCard.scss";
 
@@ -34,8 +33,8 @@ const ActivityCard = ({ activity }: ActivityCardProps) => {
   };
 
   return (
-    <ButtonBase className="activity-card" onClick={handleClick}>
-      <Paper elevation={0}>
+    <ButtonBase className="activity-card-button" onClick={handleClick}>
+      <Paper className="activity-card" elevation={1}>
         <Typography className="activity-card__name" variant="h6" component="h3">
           {activity.name}
         </Typography>
@@ -45,18 +44,19 @@ const ActivityCard = ({ activity }: ActivityCardProps) => {
             className={`activity-card__tag activity-card__tag--interest-${tierClass(activity.interest)}`}
             variant="body2"
           >
-            {INTEREST}: {tierLabel(activity.interest)}
+            INTEREST: {tierLabel(activity.interest)}
           </Typography>
 
           <Typography
             className={`activity-card__tag activity-card__tag--effort-${tierClass(activity.effort)}`}
             variant="body2"
           >
-            {EFFORT}: {tierLabel(activity.effort)}
+            EFFORT: {tierLabel(activity.effort)}
           </Typography>
         </Stack>
       </Paper>
     </ButtonBase>
   );
 };
+
 export default ActivityCard;

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 
 import { fetchAuthSession } from "aws-amplify/auth";
 import { useNavigate, useParams } from "react-router-dom";
@@ -165,7 +165,7 @@ const ActivityPage = () => {
     }
   };
 
-  const handleConfirm = (event: FormEvent<HTMLFormElement>) => {
+  const handleConfirm: React.SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     void takeEditAction(ACTIONS.ADD);
   };
