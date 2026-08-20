@@ -240,7 +240,7 @@ describe("updateActivity", () => {
   it("updates an activity", async () => {
     vi.mocked(fetch).mockResolvedValue(mockResponse());
 
-    await updateActivity("", activity);
+    await updateActivity(activity.activity_id, activity);
 
     expect(fetch).toHaveBeenCalledWith(
       `${API_URL}/categories/movies/activities/activity-1`,
@@ -264,9 +264,9 @@ describe("updateActivity", () => {
       activity_id: "",
     };
 
-    await expect(updateActivity("", invalidActivity)).rejects.toBeInstanceOf(
-      ClientArgumentError,
-    );
+    await expect(
+      updateActivity(invalidActivity.activity_id, invalidActivity),
+    ).rejects.toBeInstanceOf(ClientArgumentError);
 
     expect(fetch).not.toHaveBeenCalled();
     expect(mockFetchAuthSession).not.toHaveBeenCalled();
