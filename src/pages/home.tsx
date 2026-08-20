@@ -4,7 +4,7 @@ import { fetchAuthSession, signOut } from "aws-amplify/auth";
 import { useNavigate } from "react-router-dom";
 import { Alert, Box, Button, Typography } from "@mui/material";
 
-import PickEmHomeContainer from "../homePage/PickEmHomeContainer";
+import PickEmHomeContainer from "../components/homePage/PickEmHomeContainer";
 
 const Home = () => {
   const [error, setError] = useState<string>("");

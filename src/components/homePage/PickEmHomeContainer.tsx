@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { Box, Container, Stack, Typography } from "@mui/material";
 
-import CategorySelectForm from "../components/categories/CategoriesSelectForm";
-import { FilterDropdown } from "../components/activity/FilterDropdown";
+import CategorySelectForm from "../categories/CategoriesSelectForm";
+import { FilterDropdown } from "../activity/FilterDropdown";
 import PickEmHomeActionButtons from "./PickEmHomeActionsButtons";
-import { Tier } from "../models/Activity";
-import type { Category } from "../models/Category";
-import type { Pick } from "../models/Pick";
-import CategoriesActivitesContainer from "../components/categories/CategoriesActivitesContainer";
-import PickCard from "../components/pick/PickCard";
-import { getPick } from "../api/client";
-import { EFFORT, INTEREST } from "../common/constants";
+import { Tier } from "../../models/Activity";
+import type { Category } from "../../models/Category";
+import type { Pick } from "../../models/Pick";
+import CategoriesActivitesContainer from "../categories/CategoriesActivitesContainer";
+import PickCard from "../pick/PickCard";
+import { getPick } from "../../api/client";
+import { EFFORT, INTEREST } from "../../common/constants";
 
 import "./PickEmHomeContainer.scss";
 

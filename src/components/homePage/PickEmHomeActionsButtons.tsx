@@ -2,9 +2,9 @@ import { useNavigate } from "react-router-dom";
 
 import { Box, Button } from "@mui/material";
 
-import type { Tier } from "../models/Activity";
-import type { Category } from "../models/Category";
-import { getCategories as getCategories } from "../api/client";
+import type { Tier } from "../../models/Activity";
+import type { Category } from "../../models/Category";
+import { getCategories as getCategories } from "../../api/client";
 
 interface PickEmHomeActionButtonsProps {
   selectedCategoriesIds: string[];
