@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-import { Paper, Stack, Typography } from "@mui/material";
+import { Paper, Stack, Typography, ButtonBase } from "@mui/material";
 
 import { Tier, TIER_LABELS, type Activity } from "../../models/Activity";
 import { EFFORT, INTEREST } from "../../common/constants";
@@ -34,34 +34,29 @@ const ActivityCard = ({ activity }: ActivityCardProps) => {
   };
 
   return (
-    <Paper
-      className="activity-card"
-      elevation={0}
-      component="button"
-      type="button"
-      onClick={handleClick}
-    >
-      <Typography className="activity-card__name" variant="h6" component="h3">
-        {activity.name}
-      </Typography>
-
-      <Stack className="activity-card__metadata" direction="row" spacing={1}>
-        <Typography
-          className={`activity-card__tag activity-card__tag--interest-${tierClass(activity.interest)}`}
-          variant="body2"
-        >
-          {INTEREST}: {tierLabel(activity.interest)}
+    <ButtonBase className="activity-card" onClick={handleClick}>
+      <Paper elevation={0}>
+        <Typography className="activity-card__name" variant="h6" component="h3">
+          {activity.name}
         </Typography>
 
-        <Typography
-          className={`activity-card__tag activity-card__tag--effort-${tierClass(activity.effort)}`}
-          variant="body2"
-        >
-          {EFFORT}: {tierLabel(activity.effort)}
-        </Typography>
-      </Stack>
-    </Paper>
+        <Stack className="activity-card__metadata" direction="row" spacing={1}>
+          <Typography
+            className={`activity-card__tag activity-card__tag--interest-${tierClass(activity.interest)}`}
+            variant="body2"
+          >
+            {INTEREST}: {tierLabel(activity.interest)}
+          </Typography>
+
+          <Typography
+            className={`activity-card__tag activity-card__tag--effort-${tierClass(activity.effort)}`}
+            variant="body2"
+          >
+            {EFFORT}: {tierLabel(activity.effort)}
+          </Typography>
+        </Stack>
+      </Paper>
+    </ButtonBase>
   );
 };
-
 export default ActivityCard;
