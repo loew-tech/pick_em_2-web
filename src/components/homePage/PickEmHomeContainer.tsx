@@ -28,20 +28,12 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
   const [pick, setPick] = useState<Pick | null>(null);
   const [pickMade, setPickMade] = useState(false);
 
-  const handleInterestChange = (tier: Tier) => {
-    setInterest(tier);
-  };
-
-  const handleEffortChange = (tier: Tier) => {
-    setEffort(tier);
-  };
-
   const makePick = async () => {
     setError("");
 
     try {
-      const pick = await getPick(selectedCategoriesIds, interest, effort);
-      setPick(pick);
+      const result = await getPick(selectedCategoriesIds, interest, effort);
+      setPick(result);
       setPickMade(true);
     } catch (err) {
       console.log(err);
@@ -50,15 +42,13 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
   };
 
   const addToSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let new_ = [...selectedCategoriesIds];
+    const { checked, name } = event.target;
 
-    if (event.target.checked) {
-      new_.push(event.target.name);
-    } else {
-      new_ = new_.filter((v) => v !== event.target.name);
-    }
-
-    setSelectedCategoriesIds(new_);
+    setSelectedCategoriesIds((current) =>
+      checked
+        ? [...current, name]
+        : current.filter((category) => category !== name),
+    );
   };
 
   return (
@@ -82,13 +72,13 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
               <Stack spacing={2}>
                 <FilterDropdown
                   title={INTEREST}
-                  handleChange={handleInterestChange}
+                  handleChange={setInterest}
                   value={interest}
                 />
 
                 <FilterDropdown
                   title={EFFORT}
-                  handleChange={handleEffortChange}
+                  handleChange={setEffort}
                   value={effort}
                 />
               </Stack>
@@ -104,6 +94,7 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
                 setError={setError}
               />
             </Box>
+
             {pickMade && (
               <Box className="pick-em-home__result">
                 <PickCard pick={pick} />

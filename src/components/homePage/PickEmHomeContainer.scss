@@ -2,22 +2,6 @@
   min-height: 100%;
   padding: 2rem 0 4rem;
 
-  &__panel {
-    padding: 2.5rem;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 1rem;
-    background: #fff;
-  }
-
-  &__intro {
-    max-width: 600px;
-
-    h1 {
-      margin-bottom: 0.75rem;
-      font-weight: 700;
-    }
-  }
-
   &__preferences {
     display: grid;
     grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr);
@@ -37,14 +21,19 @@
     }
   }
 
+  &__controls {
+    display: flex;
+    flex-direction: column;
+  }
+
   &__actions {
     display: flex;
     justify-content: center;
-    padding-top: 0.5rem;
+    padding: 1.5rem 0 0.5rem;
   }
 
   &__result {
-    margin-top: 2rem;
+    margin-top: 1rem;
   }
 
   &__activities {
@@ -61,14 +50,19 @@
   .pick-em-home {
     padding-top: 1rem;
 
-    &__panel {
-      padding: 1.5rem;
-      border-radius: 0.75rem;
-    }
-
     &__preferences {
       grid-template-columns: 1fr;
       gap: 1.5rem;
+    }
+
+    &__categories,
+    &__filters {
+      padding: 1rem;
+      border-radius: 0.75rem;
+    }
+
+    &__actions {
+      padding-top: 1rem;
     }
   }
 }

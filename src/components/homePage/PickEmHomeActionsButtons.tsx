@@ -4,16 +4,19 @@ import { Box, Button } from "@mui/material";
 
 import type { Tier } from "../../models/Activity";
 import type { Category } from "../../models/Category";
-import { getCategories as getCategories } from "../../api/client";
+import { getCategories } from "../../api/client";
+
+import "./PickEmHomeActionButtons.scss";
 
 interface PickEmHomeActionButtonsProps {
   selectedCategoriesIds: string[];
-  setSelectedCategories: (cats: Category[]) => void;
+  setSelectedCategories: (categories: Category[]) => void;
   interest: Tier;
   effort: Tier;
   makePick: () => void;
-  setError: (s: string) => void;
+  setError: (error: string) => void;
 }
+
 const PickEmHomeActionButtons = ({
   selectedCategoriesIds,
   setSelectedCategories,
@@ -28,30 +31,37 @@ const PickEmHomeActionButtons = ({
     try {
       const categories = await getCategories(selectedCategoriesIds);
       setSelectedCategories(categories);
-    } catch (err) {
-      console.log(err);
+    } catch {
       setError("Failed to fetch selected categories from server");
     }
   };
 
+  const hasSelectedCategories = selectedCategoriesIds.length > 0;
+
   return (
-    <Box className="cat-btns">
+    <Box className="home-actions">
       <Button
+        className="home-actions__pick"
+        variant="contained"
         onClick={makePick}
-        disabled={!selectedCategoriesIds.length || !interest || !effort}
+        disabled={!hasSelectedCategories || !interest || !effort}
       >
-        Pick!
+        Pick
       </Button>
+
       <Button
+        variant="outlined"
         onClick={fetchSelectedCategories}
-        disabled={!selectedCategoriesIds.length}
+        disabled={!hasSelectedCategories}
       >
-        Explore!
+        Explore
       </Button>
-      <Button onClick={() => navigate("/activities/new")}>
-        Add New Activity!
+
+      <Button variant="text" onClick={() => navigate("/activities/new")}>
+        Add Activity
       </Button>
     </Box>
   );
 };
+
 export default PickEmHomeActionButtons;
