@@ -1,7 +1,7 @@
 import { useEffect, useState, type ChangeEvent } from "react";
 
 import { fetchAuthSession } from "aws-amplify/auth";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 
 import { Alert, Box, Container, Link, Paper, Typography } from "@mui/material";
 
@@ -40,34 +40,32 @@ const ActivityPage = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [activity, setActivity] = useState<ActivityData>({ ...NULL_ACTIVITY });
+  const [activity, setActivity] = useState<ActivityData>({
+    ...NULL_ACTIVITY,
+  });
   const [isNew, setIsNew] = useState(false);
   const [deleteSucceeded, setDeleteSucceeded] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function checkAuthentication() {
+    const loadPage = async () => {
       try {
         const { tokens } = await fetchAuthSession();
 
         if (!tokens?.idToken) {
           navigate("/login", { replace: true });
+          return;
         }
-        setLoading(false);
       } catch {
         navigate("/login", { replace: true });
+        return;
       }
-    }
 
-    void checkAuthentication();
-  }, [navigate]);
-
-  useEffect(() => {
-    async function fetchActivity() {
       if (!categoryId || !activityId) {
         setActivity({ ...NULL_ACTIVITY });
         setIsNew(true);
+        setLoading(false);
         return;
       }
 
@@ -77,13 +75,15 @@ const ActivityPage = () => {
         const activity = await getActivity(categoryId, activityId);
         setActivity(activity);
       } catch (err) {
-        console.log(err);
+        console.error(err);
         setError("Failed to fetch activity.");
+      } finally {
+        setLoading(false);
       }
-    }
+    };
 
-    void fetchActivity();
-  }, [activityId, categoryId]);
+    void loadPage();
+  }, [activityId, categoryId, navigate]);
 
   const setActivityField = <K extends keyof ActivityData>(
     field: K,
@@ -121,7 +121,21 @@ const ActivityPage = () => {
     setError("");
   };
 
-  const takeEditAction = async (action: Action) => {
+  const handleActionError = (action: Action, err: unknown) => {
+    console.error(err);
+
+    if (err instanceof ClientArgumentError) {
+      setError(
+        `${action} activity failed. Invalid arguments provided. ${err.message}`,
+      );
+    } else if (err instanceof API_Error) {
+      setError(`${action} activity failed with error message ${err.message}`);
+    } else {
+      setError("Unknown error occurred.");
+    }
+  };
+
+  const handleAction = async (action: Action) => {
     if (action === ACTIONS.CANCEL) {
       navigate("/home");
       return;
@@ -129,6 +143,23 @@ const ActivityPage = () => {
 
     if (!activity.category || !activity.name) {
       setError("category and name must be provided.");
+      return;
+    }
+
+    if (action === ACTIONS.ADD) {
+      try {
+        await addActivity(activity);
+        reset();
+        setMessage(`${action} ${activity.name} succeeded!`);
+      } catch (err) {
+        handleActionError(action, err);
+      }
+
+      return;
+    }
+
+    if (!activityId) {
+      setError(`${action} activity failed. Activity ID is required.`);
       return;
     }
 
@@ -142,32 +173,17 @@ const ActivityPage = () => {
           await removeActivity(activityId, activity);
           setDeleteSucceeded(true);
           break;
-
-        case ACTIONS.ADD:
-          await addActivity(activity);
-          reset();
-          break;
       }
 
       setMessage(`${action} ${activity.name} succeeded!`);
     } catch (err) {
-      console.log(err);
-
-      if (err instanceof ClientArgumentError) {
-        setError(
-          `${action} activity failed. Invalid arguments provided. ${err.message}`,
-        );
-      } else if (err instanceof API_Error) {
-        setError(`${action} activity failed with error message ${err.message}`);
-      } else {
-        setError("Unknown error occurred.");
-      }
+      handleActionError(action, err);
     }
   };
 
   const handleConfirm: React.SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
-    void takeEditAction(ACTIONS.ADD);
+    void handleAction(ACTIONS.ADD);
   };
 
   if (loading) {
@@ -188,7 +204,8 @@ const ActivityPage = () => {
             </Typography>
 
             <Link
-              href="/home"
+              component={RouterLink}
+              to="/home"
               className="activity-page__back-link"
               underline="hover"
             >
@@ -199,26 +216,23 @@ const ActivityPage = () => {
           {(error || message) && (
             <Box className="activity-page__messages">
               {error && <Alert severity="error">{error}</Alert>}
-
               {message && <Alert severity="success">{message}</Alert>}
             </Box>
           )}
 
-          <Box className="activity-page__form">
-            <ActivityForm
-              activity={activity}
-              isNew={isNew}
-              deleteSucceeded={deleteSucceeded}
-              setError={setError}
-              onSubmit={handleConfirm}
-              onUpdate={() => void takeEditAction(ACTIONS.UPDATE)}
-              onRemove={() => void takeEditAction(ACTIONS.DELETE)}
-              onCategoryChange={handleCategoryChange}
-              onInterestChange={handleInterestChange}
-              onEffortChange={handleEffortChange}
-              onNameChange={handleNameChange}
-            />
-          </Box>
+          <ActivityForm
+            activity={activity}
+            isNew={isNew}
+            deleteSucceeded={deleteSucceeded}
+            setError={setError}
+            onSubmit={handleConfirm}
+            onUpdate={() => void handleAction(ACTIONS.UPDATE)}
+            onRemove={() => void handleAction(ACTIONS.DELETE)}
+            onCategoryChange={handleCategoryChange}
+            onInterestChange={handleInterestChange}
+            onEffortChange={handleEffortChange}
+            onNameChange={handleNameChange}
+          />
         </Paper>
       </Container>
     </Box>
