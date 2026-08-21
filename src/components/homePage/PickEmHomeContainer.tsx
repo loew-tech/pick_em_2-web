@@ -7,7 +7,7 @@ import PickEmHomeActionButtons from "./PickEmHomeActionsButtons";
 import { Tier } from "../../models/Activity";
 import type { Category } from "../../models/Category";
 import type { Pick } from "../../models/Pick";
-import CategoriesActivitesContainer from "../categories/CategoriesActivitesContainer";
+import CategoriesActivitesContainer from "../categories/CategoriesActivitiesContainer";
 import PickCard from "../pick/PickCard";
 import { getPick } from "../../api/client";
 import { EFFORT, INTEREST } from "../../common/constants";
