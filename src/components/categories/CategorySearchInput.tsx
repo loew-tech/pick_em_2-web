@@ -10,16 +10,23 @@ import {
 
 import { getCategoriesIds } from "../../api/client";
 
+import "./CategoriesSelectForm.scss";
+
 interface CategorySearchInputProps {
   setCategory: (s: string) => void;
   setError: (s: string) => void;
 }
+
 const CategorySearchInput = ({
   setCategory,
   setError,
 }: CategorySearchInputProps) => {
-  // @TODO: consider separating categories and categoriesFromServer
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categoriesFromServer, setCategoriesFromServer] = useState<string[]>(
+    [],
+  );
+  const [newCategories, setNewCategories] = useState<string[]>([]);
+
+  const categories = [...categoriesFromServer, ...newCategories];
 
   const handleCategoryChange = (
     _: SyntheticEvent<Element, Event>,
@@ -30,20 +37,30 @@ const CategorySearchInput = ({
   ) => {
     if (reason === "selectOption") {
       setCategory(value ?? "");
-    } else if (value && !categories.includes(value)) {
-      const new_ = [...categories];
-      new_.push(value);
-      setCategories(new_);
+      return;
+    }
+
+    if (reason === "createOption" && value) {
+      const category = value.trim();
+
+      if (
+        category &&
+        !categoriesFromServer.includes(category) &&
+        !newCategories.includes(category)
+      ) {
+        setNewCategories((current) => [...current, category]);
+      }
+
+      setCategory(category);
     }
   };
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const cats = await getCategoriesIds();
-        setCategories(cats.categories);
-      } catch (err) {
-        console.log(err);
+        const { categories } = await getCategoriesIds();
+        setCategoriesFromServer(categories);
+      } catch {
         setError("Failed to fetch categories");
       }
     };
@@ -54,15 +71,16 @@ const CategorySearchInput = ({
   const handleInputChange = (
     _: SyntheticEvent<Element, Event>,
     value: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    __: AutocompleteInputChangeReason,
+    reason: AutocompleteInputChangeReason,
   ) => {
-    setCategory(value.trim());
+    if (reason === "input") {
+      setCategory(value.trim());
+    }
   };
 
   return (
     <Autocomplete
-      id="free-solo-demo"
+      id="category-search"
       freeSolo
       options={categories}
       renderInput={(params) => <TextField {...params} label="Enter Category" />}
@@ -72,4 +90,5 @@ const CategorySearchInput = ({
     />
   );
 };
+
 export default CategorySearchInput;
