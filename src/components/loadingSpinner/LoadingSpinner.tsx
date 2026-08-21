@@ -1,4 +1,6 @@
-import { CircularProgress, Box } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
+
+import "./LoadingSpinner.scss";
 
 interface LoadingSpinnerProps {
   size?: number;
@@ -6,16 +8,13 @@ interface LoadingSpinnerProps {
 
 const LoadingSpinner = ({ size = 40 }: LoadingSpinnerProps) => {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        p: 4,
-      }}
-    >
-      <CircularProgress size={size} />
+    <Box className="loading-spinner">
+      <CircularProgress
+        size={size}
+        aria-label="Loading"
+      />
     </Box>
   );
 };
+
 export default LoadingSpinner;
