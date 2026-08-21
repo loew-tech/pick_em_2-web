@@ -1,10 +1,12 @@
+import { useEffect, useState } from "react";
+
 import {
   Checkbox,
   FormControl,
   FormControlLabel,
   FormGroup,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+
 import { getCategoriesIds } from "../../api/client";
 import LoadingSpinner from "../loadingSpinner/LoadingSpinner";
 
@@ -13,12 +15,10 @@ interface CategorySelectProps {
     event: React.ChangeEvent<HTMLInputElement>,
     checked: boolean,
   ) => void;
-  setError: (s: string) => void;
+  setError: (error: string) => void;
 }
-const CategorySelectForm = ({
-  onSelect: handleChange,
-  setError,
-}: CategorySelectProps) => {
+
+const CategorySelectForm = ({ onSelect, setError }: CategorySelectProps) => {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>([]);
 
@@ -26,16 +26,16 @@ const CategorySelectForm = ({
     const fetchCategories = async () => {
       try {
         const { categories } = await getCategoriesIds();
-        console.log("cats", categories);
         setCategories(categories);
-        setLoading(false);
       } catch (err) {
-        console.log(err);
+        console.error(err);
         setError("Failed to fetch categories");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchCategories();
+    void fetchCategories();
   }, [setError]);
 
   if (loading) {
@@ -43,19 +43,23 @@ const CategorySelectForm = ({
   }
 
   return (
-    <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
-      <FormGroup>
-        {categories.map((c) => {
-          return (
-            <FormControlLabel
-              key={c}
-              control={<Checkbox onChange={handleChange} name={c} />}
-              label={c}
-            />
-          );
-        })}
+    <FormControl
+      className="category-select"
+      component="fieldset"
+      variant="standard"
+    >
+      <FormGroup className="category-select__group">
+        {categories.map((c) => (
+          <FormControlLabel
+            className="category-select__option"
+            key={c}
+            control={<Checkbox onChange={onSelect} name={c} />}
+            label={c}
+          />
+        ))}
       </FormGroup>
     </FormControl>
   );
 };
+
 export default CategorySelectForm;
