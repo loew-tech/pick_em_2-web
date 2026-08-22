@@ -1,0 +1,35 @@
+.register {
+  min-height: 100%;
+  padding-bottom: 4rem;
+
+  &__card {
+    margin-top: 5rem;
+    padding: 2.5rem;
+    border-radius: 1rem;
+  }
+
+  &__error {
+    margin-bottom: 1.5rem;
+  }
+
+  &__login-link {
+    margin-top: 2rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .register {
+    padding-bottom: 2rem;
+
+    &__card {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+    }
+
+    &__login-link {
+      margin-top: 1.5rem;
+    }
+  }
+}
