@@ -5,46 +5,55 @@ import { useNavigate } from "react-router-dom";
 import { Alert, Box, Button, Typography } from "@mui/material";
 
 import PickEmHomeContainer from "../components/homePage/PickEmHomeContainer";
+import LoadingSpinner from "../components/loadingSpinner/LoadingSpinner";
+
+import "./Home.scss";
 
 const Home = () => {
-  const [error, setError] = useState<string>("");
-
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   useEffect(() => {
-    async function checkAuthentication() {
+    const checkAuthentication = async () => {
       try {
         const { tokens } = await fetchAuthSession();
 
         if (!tokens?.idToken) {
           navigate("/login", { replace: true });
+          return;
         }
-      } catch {
-        navigate("/login");
+
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        navigate("/login", { replace: true });
       }
-    }
+    };
 
     void checkAuthentication();
   }, [navigate]);
 
   const handleSignOut = async () => {
+    setError("");
+
     try {
       await signOut();
       navigate("/login", { replace: true });
-    } catch {
+    } catch (err) {
+      console.error(err);
       setError("Unable to sign out.");
     }
   };
 
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <Box component="main">
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+    <Box component="main" className="home">
+      <Box className="home__header">
         <Typography variant="h4" component="h1">
           Pick&apos;em
         </Typography>
@@ -52,9 +61,15 @@ const Home = () => {
         <Button onClick={handleSignOut}>Sign Out</Button>
       </Box>
 
-      {error && <Alert severity="error">{error}</Alert>}
+      {error && (
+        <Alert className="home__error" severity="error">
+          {error}
+        </Alert>
+      )}
+
       <PickEmHomeContainer setError={setError} />
     </Box>
   );
 };
+
 export default Home;
