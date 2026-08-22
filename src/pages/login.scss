@@ -1,0 +1,36 @@
+.home {
+  min-height: 100%;
+  padding: 2rem 0 4rem;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding: 0 2rem;
+  }
+
+  &__error {
+    margin: 0 2rem 1.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .home {
+    padding-top: 1rem;
+
+    &__header {
+      margin-bottom: 1.5rem;
+      padding: 0 1rem;
+
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+    &__error {
+      margin-right: 1rem;
+      margin-left: 1rem;
+    }
+  }
+}
