@@ -22,3 +22,8 @@ export interface ActivityData {
 export interface Activity extends ActivityData {
   activity_id: string;
 }
+
+export const LOCAL_ACTIVITY_ID_PREFIX = "local-";
+
+export const isLocalActivityId = (activityId: string): boolean =>
+  activityId.startsWith(LOCAL_ACTIVITY_ID_PREFIX);

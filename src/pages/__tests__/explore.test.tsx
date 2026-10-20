@@ -261,6 +261,98 @@ describe("ExplorePage", () => {
     expect(await screen.findByText("DELETE Bravo succeeded!")).toBeInTheDocument();
   });
 
+  it("refreshes the list on first click of a temporary activity", async () => {
+    const localCategory: Category = {
+      id: "movies",
+      activities: [activity("local-1", "Echo", Tier.LOW, Tier.LOW)],
+    };
+    const refreshedCategory: Category = {
+      id: "movies",
+      activities: [activity("5", "Echo", Tier.LOW, Tier.LOW)],
+    };
+
+    vi.mocked(getCategories)
+      .mockResolvedValueOnce([localCategory])
+      .mockResolvedValue([refreshedCategory]);
+
+    render(<ExplorePage />);
+
+    await screen.findByText("Echo");
+    expect(
+      screen.queryByRole("button", { name: "Delete Echo" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button"));
+
+    expect(await screen.findByText("List refreshed.")).toBeInTheDocument();
+    expect(getCategories).toHaveBeenCalledTimes(2);
+    expect(getCategories).toHaveBeenLastCalledWith(["movies"]);
+    expect(
+      screen.getByRole("button", { name: "Delete Echo" }),
+    ).toBeInTheDocument();
+    expect(navigate).not.toHaveBeenCalledWith(
+      "/categories/movies/activities/local-1",
+    );
+  });
+
+  it("shows a loading spinner while refreshing a temporary activity", async () => {
+    const localCategory: Category = {
+      id: "movies",
+      activities: [activity("local-1", "Echo", Tier.LOW, Tier.LOW)],
+    };
+    const refreshedCategory: Category = {
+      id: "movies",
+      activities: [activity("5", "Echo", Tier.LOW, Tier.LOW)],
+    };
+
+    let resolveRefresh: (categories: Category[]) => void = () => {};
+    vi.mocked(getCategories)
+      .mockResolvedValueOnce([localCategory])
+      .mockReturnValue(
+        new Promise<Category[]>((resolve) => {
+          resolveRefresh = resolve;
+        }),
+      );
+
+    render(<ExplorePage />);
+
+    await screen.findByText("Echo");
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button"));
+
+    expect(screen.getByRole("status")).toHaveTextContent("Loading");
+
+    resolveRefresh([refreshedCategory]);
+
+    expect(await screen.findByText("List refreshed.")).toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("keeps the list and shows an error when the refresh fails", async () => {
+    const localCategory: Category = {
+      id: "movies",
+      activities: [activity("local-1", "Echo", Tier.LOW, Tier.LOW)],
+    };
+
+    vi.mocked(getCategories)
+      .mockResolvedValueOnce([localCategory])
+      .mockRejectedValue(new Error("API failure"));
+
+    render(<ExplorePage />);
+
+    await screen.findByText("Echo");
+    fireEvent.click(screen.getByRole("button"));
+
+    expect(
+      await screen.findByText("Failed to refresh activities."),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Echo")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Delete Echo" }),
+    ).not.toBeInTheDocument();
+  });
+
   it("provides a link back to home", async () => {
     render(<ExplorePage />);
 

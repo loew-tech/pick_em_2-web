@@ -166,6 +166,47 @@ describe("ActivityCard", () => {
     ).toBeDisabled();
   });
 
+  it("does not render a delete button for a temporary activity", () => {
+    render(
+      <ActivityCard
+        activity={{ ...activity, activity_id: "local-1" }}
+        onDelete={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("button", { name: `Delete ${activity.name}` }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("calls onTemporaryActivityClick and does not navigate for a temporary activity", () => {
+    const onTemporaryActivityClick = vi.fn();
+    const temporary = { ...activity, activity_id: "local-1" };
+
+    render(
+      <ActivityCard
+        activity={temporary}
+        onTemporaryActivityClick={onTemporaryActivityClick}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button"));
+
+    expect(onTemporaryActivityClick).toHaveBeenCalledOnce();
+    expect(onTemporaryActivityClick).toHaveBeenCalledWith(temporary);
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it("does not navigate when a temporary activity without a handler is clicked", () => {
+    render(
+      <ActivityCard activity={{ ...activity, activity_id: "local-1" }} />,
+    );
+
+    fireEvent.click(screen.getByRole("button"));
+
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
   it("navigates to the activity when clicked", () => {
     render(<ActivityCard activity={activity} />);
 

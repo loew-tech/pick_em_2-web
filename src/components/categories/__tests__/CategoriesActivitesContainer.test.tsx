@@ -11,13 +11,21 @@ vi.mock("../../activity/ActivityCard", () => ({
     activity,
     onDelete,
     deleteDisabled,
+    onTemporaryActivityClick,
   }: {
     activity: Activity;
     onDelete?: (activity: Activity) => void;
     deleteDisabled?: boolean;
+    onTemporaryActivityClick?: (activity: Activity) => void;
   }) => (
     <div data-testid="activity-card">
       {activity.name}
+      {onTemporaryActivityClick && (
+        <button
+          aria-label={`Select ${activity.name}`}
+          onClick={() => onTemporaryActivityClick(activity)}
+        />
+      )}
       {onDelete && (
         <button
           aria-label={`Delete ${activity.name}`}
@@ -106,6 +114,24 @@ describe("CategoriesActivitiesContainer", () => {
 
     expect(onDelete).toHaveBeenCalledOnce();
     expect(onDelete).toHaveBeenCalledWith(activities[0]);
+  });
+
+  it("forwards onTemporaryActivityClick to each activity card", () => {
+    const onTemporaryActivityClick = vi.fn();
+
+    render(
+      <CategoriesActivitiesContainer
+        category={category}
+        onTemporaryActivityClick={onTemporaryActivityClick}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: `Select ${activities[0].name}` }),
+    );
+
+    expect(onTemporaryActivityClick).toHaveBeenCalledOnce();
+    expect(onTemporaryActivityClick).toHaveBeenCalledWith(activities[0]);
   });
 
   it("disables only the deleting activity card", () => {

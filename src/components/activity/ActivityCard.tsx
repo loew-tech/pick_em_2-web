@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Box, ButtonBase, IconButton, Paper, Stack, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import { Tier, TIER_LABELS, type Activity } from "../../models/Activity";
+import { isLocalActivityId, Tier, TIER_LABELS, type Activity } from "../../models/Activity";
 
 import "./ActivityCard.scss";
 
@@ -11,9 +11,11 @@ interface ActivityCardProps {
   activity: Activity;
   onDelete?: (activity: Activity) => void;
   deleteDisabled?: boolean;
+  onTemporaryActivityClick?: (activity: Activity) => void;
 }
 
-const ActivityCard = ({ activity, onDelete, deleteDisabled = false }: ActivityCardProps) => {
+const ActivityCard = ({ activity, onDelete, deleteDisabled = false, onTemporaryActivityClick }: ActivityCardProps) => {
+  const isTemporary = isLocalActivityId(activity.activity_id);
   const navigate = useNavigate();
 
   const tierLabel = (tier: Tier): string => TIER_LABELS[tier];
@@ -30,6 +32,11 @@ const ActivityCard = ({ activity, onDelete, deleteDisabled = false }: ActivityCa
   };
 
   const handleClick = () => {
+    if (isTemporary) {
+      onTemporaryActivityClick?.(activity);
+      return;
+    }
+
     navigate(
       `/categories/${activity.category}/activities/${activity.activity_id}`,
     );
@@ -66,7 +73,7 @@ const ActivityCard = ({ activity, onDelete, deleteDisabled = false }: ActivityCa
         </Paper>
       </ButtonBase>
 
-      {onDelete && (
+      {onDelete && !isTemporary && (
         <IconButton
           className="activity-card__delete"
           aria-label={`Delete ${activity.name}`}

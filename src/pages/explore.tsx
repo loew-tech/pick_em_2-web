@@ -11,7 +11,7 @@ import { API_Error, ClientArgumentError } from "../common/errors";
 import CategoriesActivitiesContainer from "../components/categories/CategoriesActivitiesContainer";
 import { FilterDropdown, FILTER_ALL, type FilterValue } from "../components/activity/FilterDropdown";
 import LoadingSpinner from "../components/loadingSpinner/LoadingSpinner";
-import { Tier, type Activity } from "../models/Activity";
+import { isLocalActivityId, Tier, type Activity } from "../models/Activity";
 import type { Category } from "../models/Category";
 
 import "./explore.scss";
@@ -25,6 +25,7 @@ const ExplorePage = () => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [refreshingTemporary, setRefreshingTemporary] = useState(false);
   const [interestFilter, setInterestFilter] = useState<Tier | null>(null);
   const [effortFilter, setEffortFilter] = useState<Tier | null>(null);
 
@@ -92,7 +93,39 @@ const ExplorePage = () => {
     setEffortFilter(value === FILTER_ALL ? null : value);
   };
 
+  const handleTemporaryActivityClick = async () => {
+    if (!categoryId || refreshingTemporary) {
+      return;
+    }
+
+    setRefreshingTemporary(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const categories = await getCategories([categoryId]);
+      const fetched = categories[0];
+
+      if (!fetched) {
+        setError("Failed to refresh activities.");
+        return;
+      }
+
+      setCategory(fetched);
+      setMessage("List refreshed.");
+    } catch (err) {
+      console.error(err);
+      setError("Failed to refresh activities.");
+    } finally {
+      setRefreshingTemporary(false);
+    }
+  };
+
   const handleDelete = async (activity: Activity) => {
+    if (isLocalActivityId(activity.activity_id)) {
+      return;
+    }
+
     setDeletingId(activity.activity_id);
     setError("");
     setMessage("");
@@ -188,6 +221,8 @@ const ExplorePage = () => {
               />
             </Stack>
 
+            {refreshingTemporary && <LoadingSpinner />}
+
             {category.activities.length === 0 ? (
               <Typography className="explore-page__empty">
                 This category has no activities yet.
@@ -201,6 +236,9 @@ const ExplorePage = () => {
                 category={{ ...category, activities: filteredActivities }}
                 onDeleteActivity={(activity) => void handleDelete(activity)}
                 deletingId={deletingId}
+                onTemporaryActivityClick={() =>
+                  void handleTemporaryActivityClick()
+                }
               />
             )}
           </>

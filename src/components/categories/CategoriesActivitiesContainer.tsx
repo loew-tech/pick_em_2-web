@@ -10,12 +10,14 @@ interface CategoriesActivitiesContainerProps {
   category: Category;
   onDeleteActivity?: (activity: Activity) => void;
   deletingId?: string | null;
+  onTemporaryActivityClick?: (activity: Activity) => void;
 }
 
 const CategoriesActivitiesContainer = ({
   category,
   onDeleteActivity,
   deletingId = null,
+  onTemporaryActivityClick,
 }: CategoriesActivitiesContainerProps) => {
   return (
     <section className="category-activities">
@@ -34,6 +36,7 @@ const CategoriesActivitiesContainer = ({
             activity={activity}
             onDelete={onDeleteActivity}
             deleteDisabled={deletingId === activity.activity_id}
+            onTemporaryActivityClick={onTemporaryActivityClick}
           />
         ))}
       </div>
