@@ -8,7 +8,7 @@ import { Alert, Box, Container, Link, Stack, Typography } from "@mui/material";
 import { getCategories } from "../api/client";
 import { EFFORT, INTEREST } from "../common/constants";
 import CategoriesActivitiesContainer from "../components/categories/CategoriesActivitiesContainer";
-import { FilterDropdown, type FilterValue } from "../components/activity/FilterDropdown";
+import { FilterDropdown, FILTER_ALL, type FilterValue } from "../components/activity/FilterDropdown";
 import LoadingSpinner from "../components/loadingSpinner/LoadingSpinner";
 import { Tier } from "../models/Activity";
 import type { Category } from "../models/Category";
@@ -82,12 +82,11 @@ const ExplorePage = () => {
   }, [category, interestFilter, effortFilter]);
 
   const handleInterestChange = (value: FilterValue) => {
-    // @TODO: remove magic string here and else where
-    setInterestFilter(value === "all" ? null : value);
+    setInterestFilter(value === FILTER_ALL ? null : value);
   };
 
   const handleEffortChange = (value: FilterValue) => {
-    setEffortFilter(value === "all" ? null : value);
+    setEffortFilter(value === FILTER_ALL ? null : value);
   };
 
   if (loading) {
@@ -131,14 +130,14 @@ const ExplorePage = () => {
             >
               <FilterDropdown
                 title={INTEREST}
-                value={interestFilter ?? "all"}
+                value={interestFilter ?? FILTER_ALL}
                 handleChange={handleInterestChange}
                 allowAll
               />
 
               <FilterDropdown
                 title={EFFORT}
-                value={effortFilter ?? "all"}
+                value={effortFilter ?? FILTER_ALL}
                 handleChange={handleEffortChange}
                 allowAll
               />

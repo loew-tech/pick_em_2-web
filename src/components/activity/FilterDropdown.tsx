@@ -8,7 +8,9 @@ import { Tier } from "../../models/Activity";
 
 import "./FilterDropdown.scss";
 
-export type FilterValue = Tier | "all";
+export const FILTER_ALL = "all" as const;
+
+export type FilterValue = Tier | typeof FILTER_ALL;
 
 type FilterDropdownProps<T extends FilterValue = Tier> = {
   title: string;
@@ -30,7 +32,7 @@ export const FilterDropdown = <T extends FilterValue = Tier>({
   const onChange = (event: SelectChangeEvent<T>) => {
     const raw = event.target.value;
 
-    handleChange((raw === "all" ? "all" : Number(raw)) as T);
+    handleChange((raw === FILTER_ALL ? FILTER_ALL : Number(raw)) as T);
   };
 
   return (
@@ -50,7 +52,7 @@ export const FilterDropdown = <T extends FilterValue = Tier>({
         value={value}
         onChange={onChange}
       >
-        {allowAll && <MenuItem value="all">All</MenuItem>}
+        {allowAll && <MenuItem value={FILTER_ALL}>All</MenuItem>}
         <MenuItem value={Tier.LOW}>Low</MenuItem>
         <MenuItem value={Tier.MEDIUM}>Medium</MenuItem>
         <MenuItem value={Tier.HIGH}>High</MenuItem>

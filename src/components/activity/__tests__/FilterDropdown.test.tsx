@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { FilterDropdown } from "../FilterDropdown";
+import { FilterDropdown, FILTER_ALL } from "../FilterDropdown";
 import { Tier } from "../../../models/Activity";
 
 afterEach(() => {
@@ -118,7 +118,7 @@ describe("FilterDropdown", () => {
     render(
       <FilterDropdown
         title="interest"
-        value="all"
+        value={FILTER_ALL}
         handleChange={vi.fn()}
         allowAll
       />,
@@ -150,7 +150,7 @@ describe("FilterDropdown", () => {
     fireEvent.click(screen.getByRole("option", { name: "All" }));
 
     expect(handleChange).toHaveBeenCalledOnce();
-    expect(handleChange).toHaveBeenCalledWith("all");
+    expect(handleChange).toHaveBeenCalledWith(FILTER_ALL);
   });
 
   it("calls handleChange with a tier when a tier is selected with allowAll", () => {
@@ -159,7 +159,7 @@ describe("FilterDropdown", () => {
     render(
       <FilterDropdown
         title="effort"
-        value="all"
+        value={FILTER_ALL}
         handleChange={handleChange}
         allowAll
       />,
