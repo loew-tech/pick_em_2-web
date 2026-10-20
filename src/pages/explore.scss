@@ -1,0 +1,44 @@
+.explore-page {
+  min-height: 100%;
+  padding: 2rem 0 4rem;
+
+  &__header {
+    margin-bottom: 1.5rem;
+  }
+
+  &__title {
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+
+  &__back-link {
+    font-size: 0.9rem;
+  }
+
+  &__error {
+    margin-bottom: 1.5rem;
+  }
+
+  &__filters {
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  &__empty {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 1rem;
+    background: #fff;
+  }
+}
+
+@media (max-width: 600px) {
+  .explore-page {
+    padding-top: 1rem;
+
+    &__title {
+      font-size: 2rem;
+    }
+  }
+}

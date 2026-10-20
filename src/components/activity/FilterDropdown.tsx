@@ -8,24 +8,29 @@ import { Tier } from "../../models/Activity";
 
 import "./FilterDropdown.scss";
 
-type FilterDropdownProps = {
+export type FilterValue = Tier | "all";
+
+type FilterDropdownProps<T extends FilterValue = Tier> = {
   title: string;
-  value: Tier;
-  handleChange: (tier: Tier) => void;
+  value: T;
+  handleChange: (value: T) => void;
+  allowAll?: boolean;
 };
 
-export const FilterDropdown = ({
+export const FilterDropdown = <T extends FilterValue = Tier>({
   title,
   value,
   handleChange,
-}: FilterDropdownProps) => {
+  allowAll = false,
+}: FilterDropdownProps<T>) => {
   const toTitleCase = (s: string) => {
     return s.charAt(0).toUpperCase() + s.slice(1);
   };
 
-  const onChange = (event: SelectChangeEvent<Tier>) => {
-    const tier = Number(event.target.value) as Tier;
-    handleChange(tier);
+  const onChange = (event: SelectChangeEvent<T>) => {
+    const raw = event.target.value;
+
+    handleChange((raw === "all" ? "all" : Number(raw)) as T);
   };
 
   return (
@@ -45,6 +50,7 @@ export const FilterDropdown = ({
         value={value}
         onChange={onChange}
       >
+        {allowAll && <MenuItem value="all">All</MenuItem>}
         <MenuItem value={Tier.LOW}>Low</MenuItem>
         <MenuItem value={Tier.MEDIUM}>Medium</MenuItem>
         <MenuItem value={Tier.HIGH}>High</MenuItem>

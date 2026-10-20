@@ -102,6 +102,76 @@ describe("FilterDropdown", () => {
     expect(handleChange).toHaveBeenCalledWith(tier);
   });
 
+  it("does not render an All option by default", () => {
+    render(
+      <FilterDropdown title="interest" value={Tier.LOW} handleChange={vi.fn()} />,
+    );
+
+    fireEvent.mouseDown(screen.getByRole("combobox"));
+
+    expect(
+      screen.queryByRole("option", { name: "All" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders an All option when allowAll is set", () => {
+    render(
+      <FilterDropdown
+        title="interest"
+        value="all"
+        handleChange={vi.fn()}
+        allowAll
+      />,
+    );
+
+    expect(screen.getByRole("combobox")).toHaveTextContent("All");
+
+    fireEvent.mouseDown(screen.getByRole("combobox"));
+
+    expect(screen.getByRole("option", { name: "All" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Low" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Medium" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "High" })).toBeInTheDocument();
+  });
+
+  it("calls handleChange with all when All is selected", () => {
+    const handleChange = vi.fn();
+
+    render(
+      <FilterDropdown
+        title="interest"
+        value={Tier.LOW}
+        handleChange={handleChange}
+        allowAll
+      />,
+    );
+
+    fireEvent.mouseDown(screen.getByRole("combobox"));
+    fireEvent.click(screen.getByRole("option", { name: "All" }));
+
+    expect(handleChange).toHaveBeenCalledOnce();
+    expect(handleChange).toHaveBeenCalledWith("all");
+  });
+
+  it("calls handleChange with a tier when a tier is selected with allowAll", () => {
+    const handleChange = vi.fn();
+
+    render(
+      <FilterDropdown
+        title="effort"
+        value="all"
+        handleChange={handleChange}
+        allowAll
+      />,
+    );
+
+    fireEvent.mouseDown(screen.getByRole("combobox"));
+    fireEvent.click(screen.getByRole("option", { name: "High" }));
+
+    expect(handleChange).toHaveBeenCalledOnce();
+    expect(handleChange).toHaveBeenCalledWith(Tier.HIGH);
+  });
+
   it("formats a lowercase title as title case", () => {
     render(
       <FilterDropdown title="effort" value={Tier.LOW} handleChange={vi.fn()} />,

@@ -40,6 +40,18 @@ const categories: Category[] = [
   },
 ];
 
+const renderButtons = (ids: string[]) =>
+  render(
+    <PickEmHomeActionButtons
+      selectedCategoriesIds={ids}
+      setSelectedCategories={setSelectedCategories}
+      interest={Tier.MEDIUM}
+      effort={Tier.LOW}
+      makePick={makePick}
+      setError={setError}
+    />,
+  );
+
 beforeEach(() => {
   vi.clearAllMocks();
 
@@ -54,18 +66,13 @@ afterEach(() => {
 
 describe("PickEmHomeActionButtons", () => {
   it("renders the action buttons", () => {
-    render(
-      <PickEmHomeActionButtons
-        selectedCategoriesIds={selectedCategoriesIds}
-        setSelectedCategories={setSelectedCategories}
-        interest={Tier.MEDIUM}
-        effort={Tier.LOW}
-        makePick={makePick}
-        setError={setError}
-      />,
-    );
+    renderButtons(selectedCategoriesIds);
 
     expect(screen.getByRole("button", { name: "Pick" })).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("button", { name: "View activities" }),
+    ).toBeInTheDocument();
 
     expect(screen.getByRole("button", { name: "Explore" })).toBeInTheDocument();
 
@@ -75,82 +82,39 @@ describe("PickEmHomeActionButtons", () => {
   });
 
   it("disables Pick when no categories are selected", () => {
-    render(
-      <PickEmHomeActionButtons
-        selectedCategoriesIds={[]}
-        setSelectedCategories={setSelectedCategories}
-        interest={Tier.MEDIUM}
-        effort={Tier.LOW}
-        makePick={makePick}
-        setError={setError}
-      />,
-    );
+    renderButtons([]);
 
     expect(screen.getByRole("button", { name: "Pick" })).toBeDisabled();
   });
 
-  it("disables Explore when no categories are selected", () => {
-    render(
-      <PickEmHomeActionButtons
-        selectedCategoriesIds={[]}
-        setSelectedCategories={setSelectedCategories}
-        interest={Tier.MEDIUM}
-        effort={Tier.LOW}
-        makePick={makePick}
-        setError={setError}
-      />,
-    );
+  it("disables View activities when no categories are selected", () => {
+    renderButtons([]);
 
-    expect(screen.getByRole("button", { name: "Explore" })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "View activities" }),
+    ).toBeDisabled();
   });
 
   it("enables Pick when categories, interest, and effort are selected", () => {
-    render(
-      <PickEmHomeActionButtons
-        selectedCategoriesIds={selectedCategoriesIds}
-        setSelectedCategories={setSelectedCategories}
-        interest={Tier.MEDIUM}
-        effort={Tier.LOW}
-        makePick={makePick}
-        setError={setError}
-      />,
-    );
+    renderButtons(selectedCategoriesIds);
 
     expect(screen.getByRole("button", { name: "Pick" })).toBeEnabled();
   });
 
   it("calls makePick when Pick is clicked", () => {
-    render(
-      <PickEmHomeActionButtons
-        selectedCategoriesIds={selectedCategoriesIds}
-        setSelectedCategories={setSelectedCategories}
-        interest={Tier.MEDIUM}
-        effort={Tier.LOW}
-        makePick={makePick}
-        setError={setError}
-      />,
-    );
+    renderButtons(selectedCategoriesIds);
 
     fireEvent.click(screen.getByRole("button", { name: "Pick" }));
 
     expect(makePick).toHaveBeenCalledOnce();
   });
 
-  it("fetches selected categories when Explore is clicked", async () => {
+  it("fetches selected categories when View activities is clicked", async () => {
     mockGetCategories.mockResolvedValue(categories);
 
-    render(
-      <PickEmHomeActionButtons
-        selectedCategoriesIds={selectedCategoriesIds}
-        setSelectedCategories={setSelectedCategories}
-        interest={Tier.MEDIUM}
-        effort={Tier.LOW}
-        makePick={makePick}
-        setError={setError}
-      />,
-    );
+    renderButtons(selectedCategoriesIds);
 
-    fireEvent.click(screen.getByRole("button", { name: "Explore" }));
+    fireEvent.click(screen.getByRole("button", { name: "View activities" }));
 
     await vi.waitFor(() => {
       expect(mockGetCategories).toHaveBeenCalledOnce();
@@ -165,18 +129,9 @@ describe("PickEmHomeActionButtons", () => {
   it("sets an error when fetching categories fails", async () => {
     mockGetCategories.mockRejectedValue(new Error("API failure"));
 
-    render(
-      <PickEmHomeActionButtons
-        selectedCategoriesIds={selectedCategoriesIds}
-        setSelectedCategories={setSelectedCategories}
-        interest={Tier.MEDIUM}
-        effort={Tier.LOW}
-        makePick={makePick}
-        setError={setError}
-      />,
-    );
+    renderButtons(selectedCategoriesIds);
 
-    fireEvent.click(screen.getByRole("button", { name: "Explore" }));
+    fireEvent.click(screen.getByRole("button", { name: "View activities" }));
 
     await vi.waitFor(() => {
       expect(setError).toHaveBeenCalledOnce();
@@ -187,17 +142,36 @@ describe("PickEmHomeActionButtons", () => {
     );
   });
 
+  it("disables Explore when no categories are selected", () => {
+    renderButtons([]);
+
+    expect(screen.getByRole("button", { name: "Explore" })).toBeDisabled();
+  });
+
+  it("disables Explore when two or more categories are selected", () => {
+    renderButtons(selectedCategoriesIds);
+
+    expect(screen.getByRole("button", { name: "Explore" })).toBeDisabled();
+  });
+
+  it("enables Explore when exactly one category is selected", () => {
+    renderButtons(["movies"]);
+
+    expect(screen.getByRole("button", { name: "Explore" })).toBeEnabled();
+  });
+
+  it("navigates to the explore page when Explore is clicked", () => {
+    renderButtons(["movies"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Explore" }));
+
+    expect(mockNavigate).toHaveBeenCalledOnce();
+    expect(mockNavigate).toHaveBeenCalledWith("/categories/movies/explore");
+    expect(mockGetCategories).not.toHaveBeenCalled();
+  });
+
   it("navigates to the new activity page", () => {
-    render(
-      <PickEmHomeActionButtons
-        selectedCategoriesIds={[]}
-        setSelectedCategories={setSelectedCategories}
-        interest={Tier.MEDIUM}
-        effort={Tier.LOW}
-        makePick={makePick}
-        setError={setError}
-      />,
-    );
+    renderButtons([]);
 
     fireEvent.click(screen.getByRole("button", { name: "Add Activity" }));
 

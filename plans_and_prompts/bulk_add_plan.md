@@ -1,6 +1,6 @@
 # Explore Category Page — Implementation Plan
 
-> Status: **Draft** — Phase 2/3 decisions being settled in-session; not Final until explicitly accepted.
+> Status: **Final** — Phase 2/3 decisions settled and explicitly accepted by the user on 2026-10-19. Implementation still requires a separate `go`, one phase at a time.
 
 Goal: add a dedicated explore page for one category that (1) lists all of its activities, (2) filters them by interest and effort, (3) deletes activities one at a time, and (4) bulk-adds activities via `POST /categories/{category_id}/activities/bulk`. Delivered in three gated phases; no phase starts without your approval of the previous one.
 
@@ -148,7 +148,7 @@ Acceptance criteria: submitting N valid rows issues exactly one bulk request (an
 
 Builds on Phases 1–2: the page, its local category state, and alert plumbing already exist — Phase 3 adds one client function, one form component, and one submit handler that appends to that local state on the `201` go-ahead.
 
-### 5. Risks and open questions
+### 5. Risks and decisions
 
 Decisions that materially affect the design — none of these will be silently decided:
 

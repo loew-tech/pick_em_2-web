@@ -37,6 +37,13 @@ const PickEmHomeActionButtons = ({
   };
 
   const hasSelectedCategories = selectedCategoriesIds.length > 0;
+  const hasExactlyOneCategory = selectedCategoriesIds.length === 1;
+
+  const exploreSelectedCategory = () => {
+    navigate(
+      `/categories/${encodeURIComponent(selectedCategoriesIds[0])}/explore`,
+    );
+  };
 
   return (
     <Box className="home-actions">
@@ -53,6 +60,14 @@ const PickEmHomeActionButtons = ({
         variant="outlined"
         onClick={fetchSelectedCategories}
         disabled={!hasSelectedCategories}
+      >
+        View activities
+      </Button>
+
+      <Button
+        variant="outlined"
+        onClick={exploreSelectedCategory}
+        disabled={!hasExactlyOneCategory}
       >
         Explore
       </Button>

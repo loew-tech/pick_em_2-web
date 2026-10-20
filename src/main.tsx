@@ -8,6 +8,7 @@ import Login from "./pages/login.tsx";
 import Register from "./pages/register.tsx";
 import Home from "./pages/home.tsx";
 import ActivityPage from "./pages/activity.tsx";
+import ExplorePage from "./pages/explore.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -18,6 +19,10 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/login" element={<Login />} />
         <Route path="register" element={<Register />} />{" "}
         <Route path="/activities/new" element={<ActivityPage />} />
+        <Route
+          path="/categories/:categoryId/explore"
+          element={<ExplorePage />}
+        />
         <Route
           path="/categories/:categoryId/activities/:activityId"
           element={<ActivityPage />}
