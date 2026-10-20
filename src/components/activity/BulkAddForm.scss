@@ -1,0 +1,17 @@
+.bulk-add-form {
+  margin-top: 2.5rem;
+
+  &__title {
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  &__row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  &__actions {
+    margin-top: 1rem;
+  }
+}

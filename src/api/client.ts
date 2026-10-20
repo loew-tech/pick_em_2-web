@@ -1,6 +1,6 @@
 import { fetchAuthSession } from "aws-amplify/auth";
 
-import type { Activity, ActivityData, Tier } from "../models/Activity";
+import type { Activity, ActivityData, BulkAddActivityInput, Tier } from "../models/Activity";
 import type { Pick } from "../models/Pick";
 import { CATEGORY } from "../common/constants";
 import {
@@ -162,6 +162,35 @@ export async function addActivity(activity: ActivityData): Promise<void> {
   }
 }
 
+export async function bulkAddActivities(
+  categoryId: string,
+  activities: BulkAddActivityInput[],
+): Promise<void> {
+  if (!isValidCategory(categoryId)) {
+    throw new ClientArgumentError(CATEGORY);
+  }
+
+  if (activities.length === 0) {
+    throw new ClientArgumentError("activities");
+  }
+
+  const authHeader = await getAuthHeader();
+  const response = await fetch(
+    `${API_URL}/categories/${encodeURIComponent(categoryId)}/activities/bulk`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: authHeader,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ activities }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new API_Error(response.status);
+  }
+}
 export async function getPick(
   categoryIds: string[],
   interest: Tier,

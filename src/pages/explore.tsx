@@ -1,17 +1,24 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { fetchAuthSession } from "aws-amplify/auth";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 
 import { Alert, Box, Container, Link, Stack, Typography } from "@mui/material";
 
-import { getCategories, removeActivity } from "../api/client";
+import { bulkAddActivities, getCategories, removeActivity } from "../api/client";
 import { EFFORT, INTEREST } from "../common/constants";
 import { API_Error, ClientArgumentError } from "../common/errors";
 import CategoriesActivitiesContainer from "../components/categories/CategoriesActivitiesContainer";
+import BulkAddForm from "../components/activity/BulkAddForm";
+import { createBulkAddRow } from "../components/activity/bulkAddUtils";
 import { FilterDropdown, FILTER_ALL, type FilterValue } from "../components/activity/FilterDropdown";
 import LoadingSpinner from "../components/loadingSpinner/LoadingSpinner";
-import { isLocalActivityId, Tier, type Activity } from "../models/Activity";
+import {
+  isLocalActivityId,
+  Tier,
+  type Activity,
+  type BulkAddActivityInput,
+} from "../models/Activity";
 import type { Category } from "../models/Category";
 
 import "./explore.scss";
@@ -26,6 +33,11 @@ const ExplorePage = () => {
   const [message, setMessage] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [refreshingTemporary, setRefreshingTemporary] = useState(false);
+  const [bulkRows, setBulkRows] = useState<BulkAddActivityInput[]>([
+    createBulkAddRow(),
+  ]);
+  const [submittingBulk, setSubmittingBulk] = useState(false);
+  const localIdCounter = useRef(0);
   const [interestFilter, setInterestFilter] = useState<Tier | null>(null);
   const [effortFilter, setEffortFilter] = useState<Tier | null>(null);
 
@@ -161,6 +173,59 @@ const ExplorePage = () => {
     }
   };
 
+  const handleBulkAdd = async (activities: BulkAddActivityInput[]) => {
+    if (!categoryId || submittingBulk) {
+      return;
+    }
+
+    setSubmittingBulk(true);
+    setError("");
+    setMessage("");
+
+    try {
+      await bulkAddActivities(categoryId, activities);
+
+      setCategory((current) => {
+        if (!current) {
+          return current;
+        }
+
+        const existingIds = new Set(
+          current.activities.map((item) => item.activity_id),
+        );
+        const addedActivities = activities.map((item) => {
+          let activityId: string;
+          do {
+            localIdCounter.current += 1;
+            activityId = `local-${localIdCounter.current}`;
+          } while (existingIds.has(activityId));
+
+          existingIds.add(activityId);
+          return { ...item, category: categoryId, activity_id: activityId };
+        });
+
+        return {
+          ...current,
+          activities: [...current.activities, ...addedActivities],
+        };
+      });
+      setBulkRows([createBulkAddRow()]);
+      setMessage(`Added ${activities.length} activities successfully.`);
+    } catch (err) {
+      console.error(err);
+
+      if (err instanceof ClientArgumentError) {
+        setError(`Bulk add failed. Invalid arguments provided. ${err.message}`);
+      } else if (err instanceof API_Error) {
+        setError(`Bulk add failed with error message ${err.message}`);
+      } else {
+        setError("Bulk add failed.");
+      }
+    } finally {
+      setSubmittingBulk(false);
+    }
+  };
+
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -241,6 +306,13 @@ const ExplorePage = () => {
                 }
               />
             )}
+
+            <BulkAddForm
+              rows={bulkRows}
+              onRowsChange={setBulkRows}
+              onSubmit={(activities) => void handleBulkAdd(activities)}
+              submitting={submittingBulk}
+            />
           </>
         )}
       </Container>

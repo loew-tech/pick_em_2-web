@@ -19,6 +19,8 @@ export interface ActivityData {
   effort: Tier;
 }
 
+export type BulkAddActivityInput = Omit<ActivityData, "category">;
+
 export interface Activity extends ActivityData {
   activity_id: string;
 }

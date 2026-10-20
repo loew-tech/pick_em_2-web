@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fetchAuthSession } from "aws-amplify/auth";
 
-import type { Activity, Tier } from "../../models/Activity";
+import type { Activity, BulkAddActivityInput, Tier } from "../../models/Activity";
 import type { Pick } from "../../models/Pick";
 import type { Category } from "../../models/Category";
 import {
@@ -19,6 +19,7 @@ import {
   updateActivity,
   removeActivity,
   addActivity,
+  bulkAddActivities,
   getPick,
 } from "../client";
 
@@ -416,6 +417,81 @@ describe("addActivity", () => {
         method: "POST",
       }),
     );
+  });
+});
+
+describe("bulkAddActivities", () => {
+  const bulkActivities: BulkAddActivityInput[] = [
+    { name: "Watch a movie", interest: 3 as Tier, effort: 1 as Tier },
+    { name: "Go for a walk", interest: 2 as Tier, effort: 1 as Tier },
+  ];
+
+  it("posts the flat activities body to the bulk endpoint", async () => {
+    vi.mocked(fetch).mockResolvedValue(mockResponse({ msg: "created" }, 201));
+
+    await bulkAddActivities("movies", bulkActivities);
+
+    expect(fetch).toHaveBeenCalledOnce();
+    expect(fetch).toHaveBeenCalledWith(
+      `${API_URL}/categories/movies/activities/bulk`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: AUTH_HEADER,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ activities: bulkActivities }),
+      },
+    );
+  });
+
+  it("encodes the category in the URL", async () => {
+    vi.mocked(fetch).mockResolvedValue(mockResponse({ msg: "created" }, 201));
+
+    await bulkAddActivities("sci-fi & TV", bulkActivities);
+
+    expect(fetch).toHaveBeenCalledWith(
+      `${API_URL}/categories/sci-fi%20%26%20TV/activities/bulk`,
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
+  it("throws ClientArgumentError for an invalid category without fetching", async () => {
+    await expect(
+      bulkAddActivities("sci/fi", bulkActivities),
+    ).rejects.toBeInstanceOf(ClientArgumentError);
+
+    expect(fetch).not.toHaveBeenCalled();
+    expect(mockFetchAuthSession).not.toHaveBeenCalled();
+  });
+
+  it("throws ClientArgumentError for an empty array without fetching", async () => {
+    await expect(bulkAddActivities("movies", [])).rejects.toBeInstanceOf(
+      ClientArgumentError,
+    );
+
+    expect(fetch).not.toHaveBeenCalled();
+    expect(mockFetchAuthSession).not.toHaveBeenCalled();
+  });
+
+  it("throws API_Error when the request fails", async () => {
+    vi.mocked(fetch).mockResolvedValue(mockResponse(undefined, 400));
+
+    await expect(
+      bulkAddActivities("movies", bulkActivities),
+    ).rejects.toBeInstanceOf(API_Error);
+  });
+
+  it("throws AuthenticationError when authentication is unavailable", async () => {
+    mockFetchAuthSession.mockResolvedValue({
+      tokens: undefined,
+    } as Awaited<ReturnType<typeof fetchAuthSession>>);
+
+    await expect(
+      bulkAddActivities("movies", bulkActivities),
+    ).rejects.toBeInstanceOf(AuthenticationError);
+
+    expect(fetch).not.toHaveBeenCalled();
   });
 });
 
