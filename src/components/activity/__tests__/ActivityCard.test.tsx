@@ -126,6 +126,46 @@ describe("ActivityCard", () => {
     ).toHaveClass(`activity-card__tag--effort-${expectedClass}`);
   });
 
+  it("does not render a delete button without onDelete", () => {
+    render(<ActivityCard activity={activity} />);
+
+    expect(
+      screen.queryByRole("button", { name: `Delete ${activity.name}` }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders a delete button with onDelete", () => {
+    render(<ActivityCard activity={activity} onDelete={vi.fn()} />);
+
+    expect(
+      screen.getByRole("button", { name: `Delete ${activity.name}` }),
+    ).toBeInTheDocument();
+  });
+
+  it("calls onDelete once and does not navigate when delete is clicked", () => {
+    const onDelete = vi.fn();
+
+    render(<ActivityCard activity={activity} onDelete={onDelete} />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: `Delete ${activity.name}` }),
+    );
+
+    expect(onDelete).toHaveBeenCalledOnce();
+    expect(onDelete).toHaveBeenCalledWith(activity);
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it("disables the delete button when deleteDisabled is set", () => {
+    render(
+      <ActivityCard activity={activity} onDelete={vi.fn()} deleteDisabled />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: `Delete ${activity.name}` }),
+    ).toBeDisabled();
+  });
+
   it("navigates to the activity when clicked", () => {
     render(<ActivityCard activity={activity} />);
 

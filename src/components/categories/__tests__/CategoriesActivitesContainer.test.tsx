@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { Activity } from "../../../models/Activity";
@@ -7,8 +7,25 @@ import type { Category } from "../../../models/Category";
 import CategoriesActivitiesContainer from "../CategoriesActivitiesContainer";
 
 vi.mock("../../activity/ActivityCard", () => ({
-  default: ({ activity }: { activity: Activity }) => (
-    <div data-testid="activity-card">{activity.name}</div>
+  default: ({
+    activity,
+    onDelete,
+    deleteDisabled,
+  }: {
+    activity: Activity;
+    onDelete?: (activity: Activity) => void;
+    deleteDisabled?: boolean;
+  }) => (
+    <div data-testid="activity-card">
+      {activity.name}
+      {onDelete && (
+        <button
+          aria-label={`Delete ${activity.name}`}
+          disabled={deleteDisabled}
+          onClick={() => onDelete(activity)}
+        />
+      )}
+    </div>
   ),
 }));
 
@@ -74,6 +91,38 @@ describe("CategoriesActivitiesContainer", () => {
     );
 
     expect(screen.queryAllByTestId("activity-card")).toHaveLength(0);
+  });
+
+  it("forwards onDelete to each activity card", () => {
+    const onDelete = vi.fn();
+
+    render(
+      <CategoriesActivitiesContainer category={category} onDeleteActivity={onDelete} />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: `Delete ${activities[0].name}` }),
+    );
+
+    expect(onDelete).toHaveBeenCalledOnce();
+    expect(onDelete).toHaveBeenCalledWith(activities[0]);
+  });
+
+  it("disables only the deleting activity card", () => {
+    render(
+      <CategoriesActivitiesContainer
+        category={category}
+        onDeleteActivity={vi.fn()}
+        deletingId={activities[1].activity_id}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: `Delete ${activities[0].name}` }),
+    ).not.toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: `Delete ${activities[1].name}` }),
+    ).toBeDisabled();
   });
 
   it("renders the category as a section", () => {

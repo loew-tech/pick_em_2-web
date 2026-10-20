@@ -10,7 +10,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { getCategories } from "../../api/client";
+import { getCategories, removeActivity } from "../../api/client";
+import { API_Error } from "../../common/errors";
 import { Tier, type Activity } from "../../models/Activity";
 import type { Category } from "../../models/Category";
 import ExplorePage from "../explore";
@@ -29,6 +30,7 @@ vi.mock("react-router-dom", () => ({
 
 vi.mock("../../api/client", () => ({
   getCategories: vi.fn(),
+  removeActivity: vi.fn(),
 }));
 
 vi.mock("../../components/loadingSpinner/LoadingSpinner", () => ({
@@ -76,6 +78,7 @@ beforeEach(() => {
   vi.mocked(useParams).mockReturnValue({ categoryId: "movies" });
   authenticated();
   vi.mocked(getCategories).mockResolvedValue([category]);
+  vi.mocked(removeActivity).mockResolvedValue(undefined);
 });
 
 afterEach(() => {
@@ -196,6 +199,66 @@ describe("ExplorePage", () => {
 
     expect(screen.getByText("Alpha")).toBeInTheDocument();
     expect(screen.getByText("Delta")).toBeInTheDocument();
+  });
+
+  it("deletes an activity and removes it from the list", async () => {
+    render(<ExplorePage />);
+
+    await screen.findByText("Alpha");
+    fireEvent.click(screen.getByRole("button", { name: "Delete Bravo" }));
+
+    expect(removeActivity).toHaveBeenCalledOnce();
+    expect(removeActivity).toHaveBeenCalledWith("2", category.activities[1]);
+
+    expect(await screen.findByText("DELETE Bravo succeeded!")).toBeInTheDocument();
+    expect(screen.queryByText("Bravo")).not.toBeInTheDocument();
+    expect(screen.getByText("Alpha")).toBeInTheDocument();
+    expect(navigate).not.toHaveBeenCalledWith(
+      "/categories/movies/activities/2",
+    );
+  });
+
+  it("keeps the activity and shows an error when delete fails", async () => {
+    vi.mocked(removeActivity).mockRejectedValue(new API_Error(500));
+
+    render(<ExplorePage />);
+
+    await screen.findByText("Alpha");
+    fireEvent.click(screen.getByRole("button", { name: "Delete Bravo" }));
+
+    expect(
+      await screen.findByText(
+        "DELETE activity failed with error message API request failed: 500",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Bravo")).toBeInTheDocument();
+    expect(
+      screen.queryByText("DELETE Bravo succeeded!"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("disables the delete button while the delete is pending", async () => {
+    let resolveDelete: () => void = () => {};
+    vi.mocked(removeActivity).mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveDelete = resolve;
+      }),
+    );
+
+    render(<ExplorePage />);
+
+    await screen.findByText("Alpha");
+    const deleteButton = screen.getByRole("button", { name: "Delete Bravo" });
+    fireEvent.click(deleteButton);
+
+    expect(deleteButton).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Delete Alpha" }),
+    ).not.toBeDisabled();
+
+    resolveDelete();
+
+    expect(await screen.findByText("DELETE Bravo succeeded!")).toBeInTheDocument();
   });
 
   it("provides a link back to home", async () => {

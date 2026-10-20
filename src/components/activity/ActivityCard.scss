@@ -1,3 +1,19 @@
+.activity-card-wrapper {
+  position: relative;
+}
+
+.activity-card__delete {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  background: #fff;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+}
+
 .activity-card-button {
   display: block;
   width: 100%;
