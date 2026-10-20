@@ -1,16 +1,17 @@
 import { useState } from "react";
-import { Box, Container, Stack, Typography } from "@mui/material";
+import { Alert, Box, Container, Stack, Typography } from "@mui/material";
 
 import CategorySelectForm from "../categories/CategoriesSelectForm";
 import { FilterDropdown } from "../activity/FilterDropdown";
 import PickEmHomeActionButtons from "./PickEmHomeActionsButtons";
-import { Tier } from "../../models/Activity";
+import { Tier, type Activity } from "../../models/Activity";
 import type { Category } from "../../models/Category";
 import type { Pick } from "../../models/Pick";
 import CategoriesActivitesContainer from "../categories/CategoriesActivitiesContainer";
 import PickCard from "../pick/PickCard";
-import { getPick } from "../../api/client";
+import { getPick, removeActivity } from "../../api/client";
 import { EFFORT, INTEREST } from "../../common/constants";
+import { API_Error, ClientArgumentError } from "../../common/errors";
 
 import "./PickEmHomeContainer.scss";
 
@@ -27,6 +28,8 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
   const [effort, setEffort] = useState<Tier>(Tier.LOW);
   const [pick, setPick] = useState<Pick | null>(null);
   const [pickMade, setPickMade] = useState(false);
+  const [message, setMessage] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const makePick = async () => {
     setError("");
@@ -49,6 +52,40 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
         ? [...current, name]
         : current.filter((category) => category !== name),
     );
+  };
+
+  const handleDeleteActivity = async (activity: Activity) => {
+    setDeletingId(activity.activity_id);
+    setError("");
+    setMessage("");
+
+    try {
+      await removeActivity(activity.activity_id, activity);
+
+      setSelectedCategories((current) =>
+        current.map((category) => ({
+          ...category,
+          activities: category.activities.filter(
+            (item) => item.activity_id !== activity.activity_id,
+          ),
+        })),
+      );
+      setMessage(`DELETE ${activity.name} succeeded!`);
+    } catch (err) {
+      console.error(err);
+
+      if (err instanceof ClientArgumentError) {
+        setError(
+          `DELETE activity failed. Invalid arguments provided. ${err.message}`,
+        );
+      } else if (err instanceof API_Error) {
+        setError(`DELETE activity failed with error message ${err.message}`);
+      } else {
+        setError("Unknown error occurred.");
+      }
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   return (
@@ -103,6 +140,12 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
           </Box>
         </Box>
 
+        {message && (
+          <Alert className="pick-em-home__message" severity="success">
+            {message}
+          </Alert>
+        )}
+
         {selectedCategories.length > 0 && (
           <Box className="pick-em-home__activities">
             <Typography variant="h5" component="h2">
@@ -114,6 +157,10 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
                 <CategoriesActivitesContainer
                   key={category.id}
                   category={category}
+                  onDeleteActivity={(activity) =>
+                    void handleDeleteActivity(activity)
+                  }
+                  deletingId={deletingId}
                 />
               ))}
             </Stack>

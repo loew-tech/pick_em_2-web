@@ -8,7 +8,9 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import PickEmHomeContainer from "../PickEmHomeContainer";
-import { getPick } from "../../../api/client";
+import { getPick, removeActivity } from "../../../api/client";
+import { API_Error } from "../../../common/errors";
+import type { Activity } from "../../../models/Activity";
 import { Tier } from "../../../models/Activity";
 import type { Category } from "../../../models/Category";
 import type { Pick } from "../../../models/Pick";
@@ -17,6 +19,7 @@ import { INTEREST, EFFORT } from "../../../common/constants";
 
 vi.mock("../../../api/client", () => ({
   getPick: vi.fn(),
+  removeActivity: vi.fn(),
 }));
 
 vi.mock("../../categories/CategoriesSelectForm", () => ({
@@ -73,8 +76,30 @@ vi.mock("../../activity/FilterDropdown", () => ({
 }));
 
 vi.mock("../../categories/CategoriesActivitiesContainer", () => ({
-  default: ({ category }: { category: Category }) => (
-    <div data-testid={`category-${category.id}`}>{category.id}</div>
+  default: ({
+    category,
+    onDeleteActivity,
+    deletingId,
+  }: {
+    category: Category;
+    onDeleteActivity?: (activity: Activity) => void;
+    deletingId?: string | null;
+  }) => (
+    <div data-testid={`category-${category.id}`}>
+      {category.id}
+      {category.activities.map((activity) => (
+        <div key={activity.activity_id}>
+          {activity.name}
+          {onDeleteActivity && (
+            <button
+              aria-label={`Delete ${activity.name}`}
+              disabled={deletingId === activity.activity_id}
+              onClick={() => onDeleteActivity(activity)}
+            />
+          )}
+        </div>
+      ))}
+    </div>
   ),
 }));
 
@@ -106,7 +131,15 @@ vi.mock("../PickEmHomeActionsButtons", () => ({
           setSelectedCategories([
             {
               id: "movies",
-              activities: [],
+              activities: [
+                {
+                  activity_id: "activity-1",
+                  category: "movies",
+                  name: "Watch a movie",
+                  interest: Tier.LOW,
+                  effort: Tier.LOW,
+                },
+              ],
             },
           ])
         }
@@ -124,6 +157,7 @@ vi.mock("../PickEmHomeActionsButtons", () => ({
 }));
 
 const mockGetPick = vi.mocked(getPick);
+const mockRemoveActivity = vi.mocked(removeActivity);
 
 const setError = vi.fn();
 
@@ -134,6 +168,7 @@ const pick: Pick = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockRemoveActivity.mockResolvedValue(undefined);
 });
 
 afterEach(() => {
@@ -287,6 +322,79 @@ describe("PickEmHomeContainer", () => {
     await waitFor(() => {
       expect(setError).toHaveBeenCalledWith("Failed to make pick.");
     });
+  });
+
+  it("deletes an activity from the view activities list", async () => {
+    render(<PickEmHomeContainer setError={setError} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Explore!" }));
+    await screen.findByText("Watch a movie");
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Delete Watch a movie" }),
+    );
+
+    await waitFor(() => {
+      expect(mockRemoveActivity).toHaveBeenCalledOnce();
+    });
+    expect(mockRemoveActivity).toHaveBeenCalledWith("activity-1", {
+      activity_id: "activity-1",
+      category: "movies",
+      name: "Watch a movie",
+      interest: Tier.LOW,
+      effort: Tier.LOW,
+    });
+    expect(
+      await screen.findByText("DELETE Watch a movie succeeded!"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Watch a movie")).not.toBeInTheDocument();
+  });
+
+  it("keeps the activity and sets an error when delete fails", async () => {
+    mockRemoveActivity.mockRejectedValue(new API_Error(500));
+
+    render(<PickEmHomeContainer setError={setError} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Explore!" }));
+    await screen.findByText("Watch a movie");
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Delete Watch a movie" }),
+    );
+
+    await waitFor(() => {
+      expect(setError).toHaveBeenCalledWith(
+        "DELETE activity failed with error message API request failed: 500",
+      );
+    });
+    expect(screen.getByText("Watch a movie")).toBeInTheDocument();
+  });
+
+  it("disables the delete button while the delete is pending", async () => {
+    let resolveDelete: () => void = () => {};
+    mockRemoveActivity.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveDelete = resolve;
+      }),
+    );
+
+    render(<PickEmHomeContainer setError={setError} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Explore!" }));
+    await screen.findByText("Watch a movie");
+
+    const deleteButton = screen.getByRole("button", {
+      name: "Delete Watch a movie",
+    });
+    fireEvent.click(deleteButton);
+
+    expect(deleteButton).toBeDisabled();
+
+    resolveDelete();
+
+    expect(
+      await screen.findByText("DELETE Watch a movie succeeded!"),
+    ).toBeInTheDocument();
   });
 
   it("renders selected categories after exploring", async () => {
