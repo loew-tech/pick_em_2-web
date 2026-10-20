@@ -140,6 +140,7 @@ const PickEmHomeContainer = ({ setError }: PickEmHomeContainerProps) => {
           </Box>
         </Box>
 
+        {/* #TODO: success renders here while delete errors surface in Home's top error alert via setError. Unify success/error feedback placement (ideally both owned by Home) for consistency with the explore page. */}
         {message && (
           <Alert className="pick-em-home__message" severity="success">
             {message}
